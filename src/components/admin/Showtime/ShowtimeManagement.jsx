@@ -10,13 +10,11 @@ const ShowtimeManagement = () => {
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
 
-  // Lấy danh sách showtimes từ API
   const { data: showtimes = [], isLoading: loadingShowtimes } = useQuery({
     queryKey: ["showtimes"],
     queryFn: ShowtimeApi.getShowtimes,
   });
 
-  // Lấy danh sách movies, projection rooms, và theaters từ API
   const { data: movies = [], isLoading: loadingMovies } = useQuery({
     queryKey: ["movies"],
     queryFn: MovieApi.getMovies,

@@ -48,6 +48,7 @@ const TheaterManagement = () => {
       message.error("Failed to update theater");
     },
   });
+  
 
   const deleteTheaterMutation = useMutation({
     mutationFn: TheaterApi.deleteTheater,
@@ -60,7 +61,6 @@ const TheaterManagement = () => {
     },
   });
 
-  // Mở modal để tạo hoặc chỉnh sửa theater
   const showModal = (theater = null) => {
     setSelectedTheater(theater);
     if (theater) {
@@ -74,18 +74,17 @@ const TheaterManagement = () => {
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
+      console.log("Values from form: ", values); 
+
       if (selectedTheater) {
-        // Chuyển đúng theaterId và projectionRoomList với id vào API
         updateTheaterMutation.mutate({
-          theaterId: selectedTheater.id,
-          projectionRoomList: values.projectionRoomList.map(room => ({
-            ...room, // Giữ nguyên id của mỗi phòng chiếu
-          })),
-          ...values,
+          theaterId: selectedTheater.id, 
+          theaterData: values,         
         });
       } else {
         createTheaterMutation.mutate(values);
       }
+  
       setIsModalVisible(false);
       form.resetFields();
       setSelectedTheater(null);
@@ -93,6 +92,7 @@ const TheaterManagement = () => {
       message.error("Failed to save theater");
     }
   };
+  
 
   const handleCancel = () => {
     setIsModalVisible(false);

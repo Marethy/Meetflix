@@ -4,7 +4,6 @@ import {
   UserOutlined,
   HomeOutlined,
   VideoCameraOutlined,
-  ShoppingOutlined,
   ShopOutlined,
   DollarOutlined,
   PieChartOutlined,
@@ -21,6 +20,7 @@ import UserManagement from "../../components/admin/User/UserManagement";
 import TheaterManagement from "../../components/admin/Theater/TheaterManagement";
 import ShowtimeManagement from "../../components/admin/Showtime/ShowtimeManagement";
 import MovieManagement from "../../components/admin/Movie/MovieManagement";
+import Statistics from "../../components/admin/Statistics/Statistics"; // Assuming you have a Statistics component
 
 import { TokenManager } from "../../api/apiClient";
 import { useNavigate } from "react-router-dom";
@@ -74,12 +74,9 @@ const AdminDashboard = () => {
     { key: "1", icon: <HomeOutlined />, label: "Home" },
     { key: "2", icon: <UserOutlined />, label: "User" },
     { key: "3", icon: <VideoCameraOutlined />, label: "Movies" },
-    { key: "4", icon: <ShoppingOutlined />, label: "Products" },
     { key: "5", icon: <ShopOutlined />, label: "Theaters" },
     { key: "6", icon: <ClockCircleOutlined />, label: "Showtimes" },
-    { key: "7", icon: <PieChartOutlined />, label: "Dashboard" },
-    { key: "8", icon: <DesktopOutlined />, label: "Option 2" },
-    { key: "9", icon: <DollarOutlined />, label: "Receipts" },
+    { key: "7", icon: <PieChartOutlined />, label: "Statistics" }, // New Statistics section
   ];
 
   // Cập nhật breadcrumb items
@@ -91,6 +88,7 @@ const AdminDashboard = () => {
             : selectedMenuItem === "3" ? "Movies"
             : selectedMenuItem === "2" ? "User"
             : selectedMenuItem === "6" ? "Showtimes"
+            : selectedMenuItem === "7" ? "Statistics" // Update for Statistics
             : "Home",
     },
   ];
@@ -126,9 +124,10 @@ const AdminDashboard = () => {
 
           <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
             {selectedMenuItem === "2" && <UserManagement />}
-            {selectedMenuItem === "3" && <MovieManagement/>}
+            {selectedMenuItem === "3" && <MovieManagement />}
             {selectedMenuItem === "5" && <TheaterManagement />}
             {selectedMenuItem === "6" && <ShowtimeManagement />}
+            {selectedMenuItem === "7" && <Statistics />} {/* Statistics Component */}
           </div>
         </Content>
 

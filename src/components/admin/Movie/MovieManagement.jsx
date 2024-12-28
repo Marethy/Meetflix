@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { MovieApi, CategoryApi } from "../../../api"; // Assuming you have a CategoryApi
+import moment from "moment";
 import {
   Button,
   Popconfirm,
@@ -11,19 +14,22 @@ import {
   Table,
   DatePicker,
 } from "antd";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { MovieApi } from "../../../api";
-import moment from "moment";
-
 const MovieManagement = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
 
+  const { data: categories, isLoading: loadingCategories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: CategoryApi.getAllCategories,
+    select: (data) => data,
+  });
+
   const { data: movies, isLoading: loadingMovies } = useQuery({
     queryKey: ["movies"],
     queryFn: MovieApi.getMovies,
+    select: (data) => data.content,
   });
 
   const createMovieMutation = useMutation({
@@ -38,8 +44,10 @@ const MovieManagement = () => {
     },
   });
 
+  // Mutation to update a movie
   const updateMovieMutation = useMutation({
-    mutationFn: ({ movieId, movieData }) => MovieApi.updateMovie(movieId, movieData),
+    mutationFn: ({ movieId, movieData }) =>
+      MovieApi.updateMovie(movieId, movieData),
     onSuccess: () => {
       queryClient.invalidateQueries(["movies"]);
       message.success("Movie updated successfully");
@@ -49,7 +57,6 @@ const MovieManagement = () => {
       message.error("Failed to update movie");
     },
   });
-
   const deleteMovieMutation = useMutation({
     mutationFn: MovieApi.deleteMovie,
     onSuccess: () => {
@@ -60,14 +67,14 @@ const MovieManagement = () => {
       message.error("Failed to delete movie");
     },
   });
-
+  // Show modal to add or update movie
   const showModal = (movie = null) => {
     setSelectedMovie(movie);
     if (movie) {
       form.setFieldsValue({
         ...movie,
         releaseDate: movie.releaseDate ? moment(movie.releaseDate) : null,
-        category_id: movie.category_id,
+        category_id: movie.categories.map((category) => category.id),
       });
     }
     setIsModalVisible(true);
@@ -76,16 +83,17 @@ const MovieManagement = () => {
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
+
       const payload = {
         name: values.name,
         description: values.description,
         country: values.country,
         releaseDate: values.releaseDate.format("YYYY-MM-DD"),
         durationMin: values.durationMin,
-        director: values.director,
-        actors: values.actors,
+        director: values.director.map((name) => ({ name })),
+        actors: values.actors.map((name) => ({ name })),
         urlImage: values.urlImage,
-        category_id: values.category_id,
+        category_id: values.category_id, // category_id is an array of IDs
       };
 
       if (selectedMovie) {
@@ -100,42 +108,31 @@ const MovieManagement = () => {
       setIsModalVisible(false);
       setSelectedMovie(null);
     } catch (error) {
-      console.error(error);
       message.error("Failed to save movie");
     }
   };
-
+  const handleDelete = (id) => {
+    deleteMovieMutation.mutate(id);
+  };
   const handleCancel = () => {
     setIsModalVisible(false);
     setSelectedMovie(null);
     form.resetFields();
   };
 
-  const handleDelete = (id) => {
-    deleteMovieMutation.mutate(id);
-  };
-
+  // Movie table columns
   const columns = [
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Description", dataIndex: "description", key: "description" },
     { title: "Country", dataIndex: "country", key: "country" },
-    {
-      title: "Release Date",
-      dataIndex: "releaseDate",
-      key: "releaseDate",
-      render: (releaseDate) => (releaseDate ? moment(releaseDate).format("YYYY-MM-DD") : "N/A"),
-    },
+    { title: "Release Date", dataIndex: "releaseDate", key: "releaseDate" },
     { title: "Duration (min)", dataIndex: "durationMin", key: "durationMin" },
     {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <>
-          <Button
-            type="primary"
-            onClick={() => showModal(record)}
-            style={{ marginRight: "10px" }}
-          >
+        <div style={{ display: "flex", gap: "8px" }}>
+          <Button type="primary" onClick={() => showModal(record)}>
             Update
           </Button>
           <Popconfirm
@@ -146,14 +143,14 @@ const MovieManagement = () => {
           >
             <Button className="bg-red-700 text-white">Delete</Button>
           </Popconfirm>
-        </>
+        </div>
       ),
     },
   ];
 
   return (
-    <div className="bg-gray-100">
-      <Button type="primary" onClick={() => showModal()} className="mb-6">
+    <div>
+      <Button type="primary" onClick={() => showModal()}>
         Add Movie
       </Button>
       <Modal
@@ -163,68 +160,76 @@ const MovieManagement = () => {
         onCancel={handleCancel}
       >
         <Form form={form} layout="vertical">
-          <Form.Item
-            name="name"
-            label="Name"
-            rules={[{ required: true, message: "Please input the movie name!" }]}
-          >
+          <Form.Item name="name" label="Name" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           <Form.Item
             name="description"
             label="Description"
-            rules={[{ required: true, message: "Please input the movie description!" }]}
+            rules={[{ required: true }]}
           >
             <Input.TextArea rows={4} />
           </Form.Item>
           <Form.Item
             name="country"
             label="Country"
-            rules={[{ required: true, message: "Please input the country!" }]}
+            rules={[{ required: true }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="releaseDate"
             label="Release Date"
-            rules={[{ required: true, message: "Please select the release date!" }]}
+            rules={[{ required: true }]}
           >
             <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
           </Form.Item>
           <Form.Item
             name="durationMin"
-            label="Duration (minutes)"
-            rules={[{ required: true, message: "Please input the duration!" }]}
+            label="Duration (min)"
+            rules={[{ required: true }]}
           >
             <Input type="number" />
           </Form.Item>
           <Form.Item
             name="director"
             label="Directors"
-            rules={[{ required: true, message: "Please input at least one director!" }]}
+            rules={[{ required: true }]}
           >
             <Select mode="tags" placeholder="Enter director names" />
           </Form.Item>
-          <Form.Item
-            name="actors"
-            label="Actors"
-            rules={[{ required: true, message: "Please input at least one actor!" }]}
-          >
+          <Form.Item name="actors" label="Actors" rules={[{ required: true }]}>
             <Select mode="tags" placeholder="Enter actor names" />
           </Form.Item>
           <Form.Item
             name="urlImage"
             label="Image URL"
-            rules={[{ required: true, message: "Please input the image URL!" }]}
+            rules={[{ required: true }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="category_id"
             label="Categories"
-            rules={[{ required: true, message: "Please select at least one category!" }]}
+            rules={[
+              {
+                required: true,
+                message: "Please select at least one category!",
+              },
+            ]}
           >
-            <Select mode="multiple" placeholder="Select categories" />
+            <Select
+              mode="multiple"
+              placeholder="Select categories"
+              options={
+                categories
+                  ? categories.map((category) => ({
+                      value: category.id,
+                      label: category.name,
+                    }))
+                  : []
+              }
+            />
           </Form.Item>
         </Form>
       </Modal>
@@ -236,7 +241,6 @@ const MovieManagement = () => {
           columns={columns}
           rowKey="id"
           pagination={{ pageSize: 5 }}
-          scroll={{ x: 1000 }}
         />
       )}
     </div>

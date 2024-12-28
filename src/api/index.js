@@ -1,4 +1,5 @@
 // src/api/index.js
+import CategoryApi from './categoryApi';
 
 export { default as AuthApi } from './authApi';
 export { default as MessageApi } from './messageApi';
@@ -9,3 +10,4 @@ export { default as SeatApi } from './seatApi';
 export { default as ShowtimeApi } from './showtimeApi';
 export { default as TheaterApi } from './theaterApi';
 export {default as UserApi} from './userApi';
+export {default as CategoryApi} from './categoryApi'

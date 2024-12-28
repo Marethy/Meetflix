@@ -23,16 +23,10 @@ const TheaterApi = {
   },
   
 
-  async updateTheater(theaterId, theaterData) {
+  async updateTheater({ theaterId, theaterData }) {
     configureAxios();
-    console.log("123"+ theaterId); // Kiểm tra theaterId
-    console.log(`API URL: /api/v1/theater/${theaterId}`);
-
-
     try {
       const response = await axiosInstance.put(`/api/v1/theater/${theaterId}`, theaterData);
-
-      message.success("Theater from api updated successfully");
       return response.data;
     } catch (error) {
       if (error.response && error.response.status === 401) {
@@ -41,8 +35,9 @@ const TheaterApi = {
       console.error("Error updating theater:", error);
       throw error;
     }
-  },
-
+  }
+  ,
+  
   async deleteTheater(theaterId) {
     configureAxios();
     try {
