@@ -25,8 +25,13 @@ const TheaterApi = {
 
   async updateTheater(theaterId, theaterData) {
     configureAxios();
+    console.log("123"+ theaterId); // Kiểm tra theaterId
+    console.log(`API URL: /api/v1/theater/${theaterId}`);
+
+
     try {
       const response = await axiosInstance.put(`/api/v1/theater/${theaterId}`, theaterData);
+
       message.success("Theater from api updated successfully");
       return response.data;
     } catch (error) {

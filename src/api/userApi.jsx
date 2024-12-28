@@ -4,7 +4,6 @@ import { axiosInstance, TokenManager, configureAxios } from "./apiClient";
 const UserApi = {
   async getUser(userId) {
     configureAxios();
-
       const response = await axiosInstance.get(`/api/v1/user/${userId}`);
       return response.data;
 
@@ -13,7 +12,6 @@ const UserApi = {
   {
     configureAxios();
     const response = await axiosInstance.get(`/api/v1/user/all`);
-    console.log(response.data);
     return response.data;
 
   },
@@ -26,8 +24,7 @@ const UserApi = {
   },
   async updateUser(userId, userData){
     configureAxios();
-    console.log(userId);
-    console.log(userData);
+
     try {
       const response = await axiosInstance.put(`/api/v1/user/${userId}`,userData);
       return response.data;

@@ -17,13 +17,12 @@ const HomePage = ({ searchData }) => {
           <MovieSearch title="Kết quả tìm kiếm" data={searchData} />
         ) : (
           <>
-          
-          
             <h1 className="text-red-700 text-3xl text-center font-bold font-[arial]">
-              {" "}  <h1 className=" text-red-700 text-3xl text-center font-bold font-[arial]">
-              Đặt vé phim
-            </h1>
-            <CinemaMovieList />
+              {" "}
+              <p className=" text-red-700 text-3xl text-center font-bold font-[arial]">
+                Đặt vé phim
+              </p>
+              <CinemaMovieList />
               Xem trực tiếp trong kho phim
             </h1>
 

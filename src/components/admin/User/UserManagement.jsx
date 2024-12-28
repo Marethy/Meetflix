@@ -13,9 +13,8 @@ import {
   Switch,
 } from "antd";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { UserApi } from "../../api";
+import { UserApi } from "../../../api";
 import moment from "moment";
-import { RecordContext } from "react-admin";
 
 const UserManagement = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -79,8 +78,7 @@ const UserManagement = () => {
       form.setFieldsValue({
         ...user,
         roles: user.roles.map((role) => role.name),
-
-        dob: user.dob ? moment(user.dob) : null,
+        birthday: user.birthday ? moment(user.birthday) : null,
         is_active: !!user.is_active,
       });
     }
@@ -96,12 +94,13 @@ const UserManagement = () => {
         password: values.password || "default_password",
         email: values.email,
         roles: values.roles.map((role, index) => ({
-          id: index, // Có thể thay đổi cách gán `id` theo yêu cầu backend
+          id: index + 1, // Tạm giả định ID role tự tăng.
           name: role,
         })),
-        birthday: values.dob ? values.dob.format("YYYY-MM-DD") : null,
+        birthday: values.birthday ? values.birthday.format("YYYY-MM-DD") : null,
         fullName: values.fullName,
-        phoneNumber: values.phone,
+        phoneNumber: values.phoneNumber,
+        movie_ids: values.movie_ids || [],
         active: values.is_active ?? false,
       };
 
@@ -169,14 +168,14 @@ const UserManagement = () => {
     },
     {
       title: "Phone",
-      dataIndex: "phone",
-      key: "phone",
+      dataIndex: "phoneNumber",
+      key: "phoneNumber",
     },
     {
-      title: "DOB",
-      dataIndex: "dob",
-      key: "dob",
-      render: (dob) => (dob ? moment(dob).format("YYYY-MM-DD") : "N/A"),
+      title: "Birthday",
+      dataIndex: "birthday",
+      key: "birthday",
+      render: (birthday) => (birthday ? moment(birthday).format("YYYY-MM-DD") : "N/A"),
     },
     {
       title: "Status",
@@ -210,7 +209,7 @@ const UserManagement = () => {
   ];
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="bg-gray-100">
       <Button type="primary" onClick={() => showModal()} className="mb-6">
         Add User
       </Button>
@@ -241,7 +240,7 @@ const UserManagement = () => {
               options={[
                 { label: "Admin", value: "ADMIN" },
                 { label: "User", value: "USER" },
-                { label: "Moderator", value: "MODERATOR" },
+                { label: "Guest", value: "GUEST" },
               ]}
             />
           </Form.Item>
@@ -264,7 +263,7 @@ const UserManagement = () => {
             <Input />
           </Form.Item>
           <Form.Item
-            name="phone"
+            name="phoneNumber"
             label="Phone"
             rules={[
               { required: true, message: "Please input the phone number!" },
@@ -272,7 +271,7 @@ const UserManagement = () => {
           >
             <Input />
           </Form.Item>
-          <Form.Item name="dob" label="Date of Birth">
+          <Form.Item name="birthday" label="Date of Birth">
             <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
           </Form.Item>
           <Form.Item name="is_active" label="Active" valuePropName="checked">

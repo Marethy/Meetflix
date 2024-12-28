@@ -3,8 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {TheaterApi,SeatApi,ShowtimeApi} from "../../api";
 import { message } from "antd";
-import SelectShowtime from "../../components/order_page/SelectShowtime";
-import SelectTheater from "../../components/order_page/SelectTheater";
+import {SelectShowtime} from "../../components/user/Order";
 
 const OrderPage = () => {
   const { id: movieId } = useParams();

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Button, Modal, Typography, Spin } from 'antd';
-import { useQuery } from '@tanstack/react-query';
-import MovieApi from '../../api/movieApi';
-import Carousel from 'react-multi-carousel';
-import 'react-multi-carousel/lib/styles.css';
+import React, { useState } from "react";
+import { Button, Modal, Typography, Spin } from "antd";
+import { useQuery } from "@tanstack/react-query";
+import MovieApi from "../../api/movieApi";
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
 import { useNavigate } from "react-router-dom";
 
 const { Text } = Typography;
@@ -34,7 +34,7 @@ const CinemaMovieList = () => {
   // const [selectedMovie, setSelectedMovie] = useState(null);
 
   const { data: movies, isLoading } = useQuery({
-    queryKey: ['movies'],
+    queryKey: ["movies"],
     queryFn: MovieApi.getMovies,
   });
 
@@ -53,9 +53,8 @@ const CinemaMovieList = () => {
       <div className="flex justify-center items-center min-h-screen">
         <Spin tip="Loading movies..." />
       </div>
-    ); 
+    );
   }
-  
 
   return (
     <div className="my-10 px-2 md:px-10 max-w-full">

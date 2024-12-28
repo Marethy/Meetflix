@@ -17,9 +17,11 @@ import UserApi from "../../api/userApi";
 import MovieApi from "../../api/movieApi";
 import MovieList from "../../components/movie/MovieList";
 import useFetchMovies from "../../hooks/useFetchMovies";
-import UserManagement from "../../components/admin/UserManagement";
-import TheaterManagement from "../../components/admin/TheaterManagement";
-import ShowtimeManagement from "../../components/admin/ShowtimeManagement";
+import UserManagement from "../../components/admin/User/UserManagement";
+import TheaterManagement from "../../components/admin/Theater/TheaterManagement";
+import ShowtimeManagement from "../../components/admin/Showtime/ShowtimeManagement";
+import MovieManagement from "../../components/admin/Movie/MovieManagement";
+
 import { TokenManager } from "../../api/apiClient";
 import { useNavigate } from "react-router-dom";
 import UserProfileButton from "../../components/UserProfileButton";
@@ -124,19 +126,7 @@ const AdminDashboard = () => {
 
           <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
             {selectedMenuItem === "2" && <UserManagement />}
-            {selectedMenuItem === "3" && (
-              <>
-                <div style={{ margin: "16px 0" }}>
-                  <Search placeholder="Search for movies..." style={{ width: 200 }} />
-                  <Button type="primary" style={{ marginLeft: "10px" }}>Filter by Date</Button>
-                </div>
-                {loadingMovies || isLoadingMovies ? (
-                  <Spin tip="Loading movies..." />
-                ) : (
-                  <MovieList title="Trending Movies" data={trendingMovies} />
-                )}
-              </>
-            )}
+            {selectedMenuItem === "3" && <MovieManagement/>}
             {selectedMenuItem === "5" && <TheaterManagement />}
             {selectedMenuItem === "6" && <ShowtimeManagement />}
           </div>
