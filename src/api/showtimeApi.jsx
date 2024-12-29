@@ -69,6 +69,20 @@ const ShowtimeApi = {
     });
     return response.data;
   },
+
+  async deleteShowtime(id) {
+    configureAxios();
+    try {
+      const response = await axiosInstance.delete(`/showtime/${id}`);
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        return await TokenManager.handleTokenRefresh(this.deleteShowtime, id);
+      }
+      console.error("Error deleting showtime:", error);
+      throw error;
+    }
+  },
 };
 
 export default ShowtimeApi;

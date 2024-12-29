@@ -39,13 +39,13 @@ function CinemaMovieDetailPage() {
 
   return (
     <div className="container mx-auto my-20 px-4">
-      <div className="flex flex-col md:flex-row gap-8 mx-auto items-start">
+      <div className="flex flex-col md:flex-row gap-8 mx-auto items-start ">
         {/* Movie Poster */}
-        <div className="w-full h-auto md:w-1/3 flex-shrink-0">
+        <div className="w-full md:w-1/3 flex-shrink-0">
           <img
-            src={movie.urlImage} // Assuming urlImage is the property for the poster image
+            src={movie.urlImage} 
             alt={movie.name}
-            className="w-[300px] h-auto rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 ease-in-out"
+            className="ml-20 rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 ease-in-out"
           />
         </div>
 

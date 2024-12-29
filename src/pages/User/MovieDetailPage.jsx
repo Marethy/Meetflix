@@ -51,7 +51,7 @@ function MovieDetailPage() {
           <img
             src={`https://image.tmdb.org/t/p/w300/${movie.poster_path}`}
             alt={movie.title}
-            className="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 ease-in-out"
+            className="ml-20 rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 ease-in-out"
           />
         </div>
 

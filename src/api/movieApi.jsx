@@ -6,7 +6,6 @@ const MovieApi = {
       const response = await axiosInstance.get(`/api/v1/movie`, {
         headers: { Authorization: undefined },
       });
-      console.log(response.data);
       return response.data;
     } catch (error) {
       console.error("Error fetching movies:", error);

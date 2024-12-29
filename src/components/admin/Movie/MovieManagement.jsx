@@ -9,14 +9,19 @@ import {
   Input,
   Select,
   Spin,
-  message,
+  message,  
   Modal,
   Table,
   DatePicker,
 } from "antd";
+
 const MovieManagement = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
+  const [categoryName, setCategoryName] = useState("");
+  const [categoryThumbnailUrl, setCategoryThumbnailUrl] = useState("");
+  const [categoryUrlKey, setCategoryUrlKey] = useState("");
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
 
@@ -44,7 +49,6 @@ const MovieManagement = () => {
     },
   });
 
-  // Mutation to update a movie
   const updateMovieMutation = useMutation({
     mutationFn: ({ movieId, movieData }) =>
       MovieApi.updateMovie(movieId, movieData),
@@ -57,6 +61,7 @@ const MovieManagement = () => {
       message.error("Failed to update movie");
     },
   });
+
   const deleteMovieMutation = useMutation({
     mutationFn: MovieApi.deleteMovie,
     onSuccess: () => {
@@ -67,7 +72,22 @@ const MovieManagement = () => {
       message.error("Failed to delete movie");
     },
   });
-  // Show modal to add or update movie
+
+  const createCategoryMutation = useMutation({
+    mutationFn: CategoryApi.createCategory,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["categories"]);
+      message.success("Category created successfully");
+      setCategoryName("");
+      setCategoryThumbnailUrl("");
+      setCategoryUrlKey("");
+      setIsCategoryModalVisible(false);
+    },
+    onError: () => {
+      message.error("Failed to create category");
+    },
+  });
+
   const showModal = (movie = null) => {
     setSelectedMovie(movie);
     if (movie) {
@@ -120,13 +140,62 @@ const MovieManagement = () => {
     form.resetFields();
   };
 
-  // Movie table columns
+
+  // Handle the category modal
+  const showCategoryModal = () => {
+    setIsCategoryModalVisible(true);
+  };
+
+  const handleCategoryOk = async () => {
+    if (categoryName && categoryThumbnailUrl && categoryUrlKey) {
+      createCategoryMutation.mutate({
+        name: categoryName,
+        thumbnailUrl: categoryThumbnailUrl,
+        url_key: categoryUrlKey,
+      });
+    } else {
+      message.error("All category fields are required");
+    }
+  };
+
+  const handleCategoryCancel = () => {
+    setIsCategoryModalVisible(false);
+    setCategoryName("");
+    setCategoryThumbnailUrl("");
+    setCategoryUrlKey("");
+  };
+
   const columns = [
-    { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Description", dataIndex: "description", key: "description" },
-    { title: "Country", dataIndex: "country", key: "country" },
-    { title: "Release Date", dataIndex: "releaseDate", key: "releaseDate" },
-    { title: "Duration (min)", dataIndex: "durationMin", key: "durationMin" },
+    { 
+      title: "Name", 
+      dataIndex: "name", 
+      key: "name", 
+      sorter: (a, b) => a.name.localeCompare(b.name),
+    },
+    { 
+      title: "Description", 
+      dataIndex: "description", 
+      key: "description",
+      sorter: (a, b) => a.description.localeCompare(b.description),
+    },
+    { 
+      title: "Country", 
+      dataIndex: "country", 
+      key: "country",
+      sorter: (a, b) => a.country.localeCompare(b.country),
+    },
+    { 
+      title: "Release Date", 
+      dataIndex: "releaseDate", 
+      key: "releaseDate",
+      sorter: (a, b) => new Date(a.releaseDate) - new Date(b.releaseDate),
+    },
+    { 
+      title: "Duration (min)", 
+      dataIndex: "durationMin", 
+      key: "durationMin",
+      sorter: (a, b) => a.durationMin - b.durationMin,
+    },
     {
       title: "Actions",
       key: "actions",
@@ -147,11 +216,15 @@ const MovieManagement = () => {
       ),
     },
   ];
+  
 
   return (
     <div>
       <Button type="primary" onClick={() => showModal()}>
         Add Movie
+      </Button>
+      <Button type="default" onClick={showCategoryModal} style={{ marginLeft: 8 }}>
+        Add Category
       </Button>
       <Modal
         title={selectedMovie ? "Update Movie" : "Add Movie"}
@@ -211,38 +284,67 @@ const MovieManagement = () => {
           <Form.Item
             name="category_id"
             label="Categories"
-            rules={[
-              {
-                required: true,
-                message: "Please select at least one category!",
-              },
-            ]}
+            rules={[{ required: true, message: "Please select at least one category!" }]}
           >
             <Select
               mode="multiple"
               placeholder="Select categories"
-              options={
-                categories
-                  ? categories.map((category) => ({
-                      value: category.id,
-                      label: category.name,
-                    }))
-                  : []
-              }
+              options={categories ? categories.map((category) => ({
+                value: category.id,
+                label: category.name,
+              })) : []}
             />
           </Form.Item>
         </Form>
       </Modal>
-      {loadingMovies ? (
-        <Spin tip="Loading movies..." />
-      ) : (
-        <Table
-          dataSource={movies}
-          columns={columns}
-          rowKey="id"
-          pagination={{ pageSize: 5 }}
-        />
-      )}
+
+      {/* Category Modal */}
+      <Modal
+        title="Add Category"
+        visible={isCategoryModalVisible}
+        onOk={handleCategoryOk}
+        onCancel={handleCategoryCancel}
+      >
+        <Form layout="vertical">
+          <Form.Item
+            label="Category Name"
+            required
+            rules={[{ required: true, message: "Please input the category name!" }]}
+          >
+            <Input
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
+            />
+          </Form.Item>
+          <Form.Item
+            label="Thumbnail URL"
+            required
+            rules={[{ required: true, message: "Please input the thumbnail URL!" }]}
+          >
+            <Input
+              value={categoryThumbnailUrl}
+              onChange={(e) => setCategoryThumbnailUrl(e.target.value)}
+            />
+          </Form.Item>
+          <Form.Item
+            label="URL Key"
+            required
+            rules={[{ required: true, message: "Please input the URL key!" }]}
+          >
+            <Input
+              value={categoryUrlKey}
+              onChange={(e) => setCategoryUrlKey(e.target.value)}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Table
+        loading={loadingMovies || loadingCategories}
+        columns={columns}
+        dataSource={movies}
+        rowKey="id"
+      />
     </div>
   );
 };

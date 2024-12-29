@@ -73,7 +73,7 @@ const TokenManager = {
 
       const { access_token } = response.data;
       localStorage.setItem("accessToken", access_token);
-      configureAxios();
+      configureAxios();  // Update the axios instance with the new access token
       return access_token;
     } catch (error) {
       console.error("Error refreshing access token:", error);
@@ -81,15 +81,17 @@ const TokenManager = {
     }
   },
 
+  // Handles token refresh when 401 error is received
   async handleTokenRefresh(retryFunction, ...args) {
     try {
       await this.refreshAccessToken();
-      return await retryFunction(...args);
+      return await retryFunction(...args);  // Retry the failed function with the new token
     } catch (refreshError) {
       console.error("Error refreshing access token:", refreshError);
-      throw refreshError; 
+      throw refreshError;
     }
-  }
+  },
 };
+
 
 export { axiosInstance, TokenManager, configureAxios };

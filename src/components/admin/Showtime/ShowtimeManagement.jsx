@@ -1,37 +1,44 @@
 import React, { useState } from "react";
-import { Button, Popconfirm, Form, Input, Select, DatePicker, Modal, Table, message, Spin } from "antd";
+import {
+  Button,
+  Popconfirm,
+  Form,
+  Input,
+  Select,
+  Spin,
+  message,
+  Modal,
+  Table,
+  DatePicker,
+} from "antd";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { MovieApi, ShowtimeApi } from "../../../api";
+import { ShowtimeApi, MovieApi, TheaterApi } from "../../../api"; // Giả định bạn đã có API để gọi
 import moment from "moment";
 
 const ShowtimeManagement = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedShowtime, setSelectedShowtime] = useState(null);
+  const [selectedTheater, setSelectedTheater] = useState(null); // State to store selected theater
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
 
-  const { data: showtimes = [], isLoading: loadingShowtimes } = useQuery({
+  const { data: showtimes, isLoading: loadingShowtimes } = useQuery({
     queryKey: ["showtimes"],
-    queryFn: ShowtimeApi.getShowtimes,
+    queryFn: ShowtimeApi.getAllShowtimes, // API để lấy danh sách showtimes
   });
-
-  const { data: movies = [], isLoading: loadingMovies } = useQuery({
+  const { data: movies, isLoading: loadingMovies } = useQuery({
     queryKey: ["movies"],
     queryFn: MovieApi.getMovies,
-    
-  });
-console.log(movies);
-  const { data: projectionRooms = [], isLoading: loadingRooms } = useQuery({
-    queryKey: ["projectionRooms"],
-    queryFn: ShowtimeApi.getProjectionRooms,
+    select: (data) => data.content,
   });
 
-  const { data: theaters = [], isLoading: loadingTheaters } = useQuery({
+  // Lấy tất cả theaters từ API
+  const { data: theaters, isLoading: loadingTheaters } = useQuery({
     queryKey: ["theaters"],
-    queryFn: ShowtimeApi.getTheaters,
+    queryFn: TheaterApi.getTheaters,
   });
 
-  // Mutation cho việc tạo, cập nhật và xóa showtime
+  // Mutation để tạo mới showtime
   const createShowtimeMutation = useMutation({
     mutationFn: ShowtimeApi.createShowtime,
     onSuccess: () => {
@@ -39,23 +46,26 @@ console.log(movies);
       message.success("Showtime created successfully");
       form.resetFields();
     },
-    onError: () => {
+    onError: (error) => {
       message.error("Failed to create showtime");
     },
   });
 
+  // Mutation để cập nhật showtime
   const updateShowtimeMutation = useMutation({
-    mutationFn: ({ showtimeId, showtimeData }) => ShowtimeApi.updateShowtime(showtimeId, showtimeData),
+    mutationFn: ({ showtimeId, showtimeData }) =>
+      ShowtimeApi.updateShowtime(showtimeId, showtimeData),
     onSuccess: () => {
       queryClient.invalidateQueries(["showtimes"]);
       message.success("Showtime updated successfully");
       form.resetFields();
     },
-    onError: () => {
+    onError: (error) => {
       message.error("Failed to update showtime");
     },
   });
 
+  // Mutation để xóa showtime
   const deleteShowtimeMutation = useMutation({
     mutationFn: ShowtimeApi.deleteShowtime,
     onSuccess: () => {
@@ -67,25 +77,29 @@ console.log(movies);
     },
   });
 
+  // Hiển thị modal để chỉnh sửa hoặc tạo showtime mới
   const showModal = (showtime = null) => {
     setSelectedShowtime(showtime);
     if (showtime) {
       form.setFieldsValue({
         ...showtime,
-        startTime: showtime.startTime ? moment(showtime.startTime) : null,
+        startTime: moment(showtime.startTime),
         movie_id: showtime.movie_id,
         projectionRoom_id: showtime.projectionRoom_id,
         theater_id: showtime.theater_id,
       });
+      setSelectedTheater(showtime.theater_id); // Set selected theater when editing showtime
     }
     setIsModalVisible(true);
   };
 
+  // Xử lý khi nhấn OK trong modal
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
+
       const payload = {
-        startTime: values.startTime.format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
+        startTime: values.startTime.format("YYYY-MM-DD HH:mm:ss"),
         movie_id: values.movie_id,
         projectionRoom_id: values.projectionRoom_id,
         theater_id: values.theater_id,
@@ -103,32 +117,75 @@ console.log(movies);
       setIsModalVisible(false);
       setSelectedShowtime(null);
     } catch (error) {
-      console.error(error);
       message.error("Failed to save showtime");
     }
   };
 
+  // Xử lý khi nhấn Cancel trong modal
   const handleCancel = () => {
     setIsModalVisible(false);
     setSelectedShowtime(null);
     form.resetFields();
+    setSelectedTheater(null); // Reset selected theater
   };
 
+  // Xử lý khi xóa showtime
   const handleDelete = (id) => {
     deleteShowtimeMutation.mutate(id);
   };
 
   const columns = [
-    { title: "Start Time", dataIndex: "startTime", key: "startTime", render: (startTime) => moment(startTime).format("YYYY-MM-DD HH:mm:ss") },
-    { title: "Movie", dataIndex: "movie_id", key: "movie_id", render: (movieId) => movies.find(movie => movie.id === movieId)?.title || "Unknown" },
-    { title: "Room", dataIndex: "projectionRoom_id", key: "projectionRoom_id", render: (roomId) => projectionRooms.find(room => room.id === roomId)?.name || "Unknown" },
-    { title: "Theater", dataIndex: "theater_id", key: "theater_id", render: (theaterId) => theaters.find(theater => theater.id === theaterId)?.name || "Unknown" },
+    {
+      title: "Movie",
+      dataIndex: "movie_id",
+      key: "movie_id",
+      render: (movieId) => {
+        const movie = movies?.find((movie) => movie.id === movieId);
+        console.log("Movie:", movie);  // Debugging: Check if movie is found
+        return movie ? movie.name : "Unknown";
+      },
+    },
+    {
+      title: "Start Time",
+      dataIndex: "startTime",
+      key: "startTime",
+      render: (startTime) => {
+        console.log("Start Time:", startTime);  // Debugging: Check if startTime is valid
+        return startTime ? moment(startTime).format("YYYY-MM-DD HH:mm:ss") : "Unknown";
+      },
+    },
+    {
+      title: "Projection Room",
+      dataIndex: "projectionRoom_id",
+      key: "projectionRoom_id",
+      render: (projectionRoomId) => {
+        const projectionRoom = theaters?.find((theater) =>
+          theater.projectionRoomList?.some((room) => room.id === projectionRoomId)
+        );
+        console.log("Projection Room:", projectionRoom);  // Debugging: Check if projectionRoom is found
+        return projectionRoom ? projectionRoom.name : "Unknown";
+      },
+    },
+    {
+      title: "Theater",
+      dataIndex: "theater_id",
+      key: "theater_id",
+      render: (theaterId) => {
+        const theater = theaters?.find((theater) => theater.id === theaterId);
+        console.log("Theater:", theater);  // Debugging: Check if theater is found
+        return theater ? theater.name : "Unknown";
+      },
+    },
     {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
         <>
-          <Button type="primary" onClick={() => showModal(record)} style={{ marginRight: "10px" }}>
+          <Button
+            type="primary"
+            onClick={() => showModal(record)}
+            style={{ marginRight: "10px" }}
+          >
             Update
           </Button>
           <Popconfirm
@@ -143,13 +200,12 @@ console.log(movies);
       ),
     },
   ];
-
+  
   return (
     <div className="bg-gray-100">
       <Button type="primary" onClick={() => showModal()} className="mb-6">
         Add Showtime
       </Button>
-
       <Modal
         title={selectedShowtime ? "Update Showtime" : "Add Showtime"}
         visible={isModalVisible}
@@ -160,52 +216,73 @@ console.log(movies);
           <Form.Item
             name="startTime"
             label="Start Time"
-            rules={[{ required: true, message: "Please select the start time!" }]}>
-            <DatePicker showTime style={{ width: "100%" }} format="YYYY-MM-DD HH:mm:ss" />
+            rules={[
+              { required: true, message: "Please select the start time!" },
+            ]}
+          >
+            <DatePicker
+              showTime
+              format="YYYY-MM-DD HH:mm:ss"
+              style={{ width: "100%" }}
+            />
           </Form.Item>
 
           <Form.Item
-  name="movie_id"
-  label="Movie"
-  rules={[{ required: true, message: "Please select a movie!" }]}>
-  <Select placeholder="Select a movie" loading={loadingMovies}>
-    {(movies?.content || []).map((movie) => (
-      <Select.Option key={movie.id} value={movie.id}>
-        {movie.name} {/* Sử dụng movie.name thay vì movie.title */}
-      </Select.Option>
-    ))}
-  </Select>
-</Form.Item>
-
-
-          <Form.Item
-            name="projectionRoom_id"
-            label="Projection Room"
-            rules={[{ required: true, message: "Please select a projection room!" }]}>
-            <Select placeholder="Select a room" loading={loadingRooms}>
-              {projectionRooms.map((room) => (
-                <Select.Option key={room.id} value={room.id}>
-                  {room.name}
-                </Select.Option>
-              ))}
+            name="movie_id"
+            label="Movie"
+            rules={[{ required: true, message: "Please select a movie!" }]}
+          >
+            <Select placeholder="Select movie">
+              {movies?.length ? (
+                movies.map((movie) => (
+                  <Select.Option key={movie.id} value={movie.id}>
+                    {movie.name}
+                  </Select.Option>
+                ))
+              ) : (
+                <Select.Option disabled>No movies available</Select.Option>
+              )}
             </Select>
           </Form.Item>
 
           <Form.Item
             name="theater_id"
             label="Theater"
-            rules={[{ required: true, message: "Please select a theater!" }]}>
-            <Select placeholder="Select a theater" loading={loadingTheaters}>
-              {theaters.map((theater) => (
+            rules={[{ required: true, message: "Please select a theater!" }]}
+          >
+            <Select
+              placeholder="Select theater"
+              onChange={(value) => setSelectedTheater(value)} // Update selected theater
+            >
+              {theaters?.map((theater) => (
                 <Select.Option key={theater.id} value={theater.id}>
                   {theater.name}
                 </Select.Option>
               ))}
             </Select>
           </Form.Item>
+
+          <Form.Item
+            name="projectionRoom_id"
+            label="Projection Room"
+            rules={[
+              { required: true, message: "Please select a projection room!" },
+            ]}
+          >
+            <Select placeholder="Select projection room">
+              {selectedTheater
+                ? theaters
+                    ?.find((theater) => theater.id === selectedTheater)
+                    ?.projectionRoomList.map((room) => (
+                      <Select.Option key={room.id} value={room.id}>
+                        {room.number}
+                      </Select.Option>
+                    ))
+                : null}
+            </Select>
+          </Form.Item>
         </Form>
       </Modal>
-
       {loadingShowtimes ? (
         <Spin tip="Loading showtimes..." />
       ) : (

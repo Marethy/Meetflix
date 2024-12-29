@@ -58,7 +58,7 @@ const CinemaMovieList = () => {
 
   return (
     <div className="my-10 px-2 md:px-10 max-w-full">
-      <h2 className="text-xl mb-4">Phim đang chiếu</h2>
+      <h2 className="text-xl mb-4"> Phim đang chiếu </h2>
       <Carousel responsive={responsive} draggable={false}>
         {movies?.content.map((movie) => (
           <div
@@ -70,8 +70,8 @@ const CinemaMovieList = () => {
             onClick={() => navigate(`/user/cinema_movies/${movie.id}`)}
           >
             <div className="hidden md:block bg-black w-full h-full opacity-40 absolute top-0 left-0 z-0" />
-            <div className="relative p-4 flex flex-col items-center justify-end h-full">
-              <h3 className="text-md uppercase text-white">
+            <div className="relative mx-auto p-4 flex flex-col items-center justify-end h-full">
+              <h3 className="text-sm text-opacity-90 uppercase text-white">
                 {movie.name || movie.title || movie.original_title}
               </h3>
             </div>
