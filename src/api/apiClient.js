@@ -25,7 +25,7 @@ const TokenManager = {
   async getAccessToken(credentials) {
     try {
       const { username, password } = credentials || {
-        username: localStorage.getItem('username'), // Lấy từ localStorage nếu không truyền vào
+        username: localStorage.getItem('username'), 
         password: localStorage.getItem('password'),
       };
 

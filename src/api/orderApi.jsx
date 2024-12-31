@@ -18,6 +18,7 @@ const OrderApi = {
   },
 
   async getOrdersByCustomer(userId) {
+
     try {
       const response = await axiosInstance.get(`/api/v1/order/customer`, {
         headers: { "X-Auth-User-Id": userId },
@@ -30,6 +31,7 @@ const OrderApi = {
   },
 
   async deleteOrderTicket(orderData) {
+    
     configureAxios();
     try {
       const response = await axiosInstance.delete("/api/v1/order/ticket", {

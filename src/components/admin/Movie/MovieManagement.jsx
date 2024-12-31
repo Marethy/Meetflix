@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { MovieApi, CategoryApi } from "../../../api"; // Assuming you have a CategoryApi
+
+import ShowtimeManagement from "../Showtime/ShowtimeManagement";
+import { MovieApi, CategoryApi, ShowtimeApi } from "../../../api"; // Assuming you have a CategoryApi
 import moment from "moment";
 import {
   Button,
@@ -9,7 +11,7 @@ import {
   Input,
   Select,
   Spin,
-  message,  
+  message,
   Modal,
   Table,
   DatePicker,
@@ -24,7 +26,18 @@ const MovieManagement = () => {
   const [categoryUrlKey, setCategoryUrlKey] = useState("");
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
+  const [currentView, setCurrentView] = useState("movieManagement");
+  const [selectedMovieId, setSelectedMovieId] = useState(null);
 
+  const navigateToShowtimeManagement = (movieId) => {
+    setSelectedMovieId(movieId);
+    setCurrentView("showtimeManagement");
+  };
+
+  const navigateBackToMovies = () => {
+    setCurrentView("movieManagement");
+    setSelectedMovieId(null);
+  };
   const { data: categories, isLoading: loadingCategories } = useQuery({
     queryKey: ["categories"],
     queryFn: CategoryApi.getAllCategories,
@@ -95,6 +108,8 @@ const MovieManagement = () => {
         ...movie,
         releaseDate: movie.releaseDate ? moment(movie.releaseDate) : null,
         category_id: movie.categories.map((category) => category.id),
+        actors: movie.actors.map((actor) => actor.name),
+        director: movie.director.map((dir) => dir.name),
       });
     }
     setIsModalVisible(true);
@@ -140,7 +155,6 @@ const MovieManagement = () => {
     form.resetFields();
   };
 
-
   // Handle the category modal
   const showCategoryModal = () => {
     setIsCategoryModalVisible(true);
@@ -166,33 +180,33 @@ const MovieManagement = () => {
   };
 
   const columns = [
-    { 
-      title: "Name", 
-      dataIndex: "name", 
-      key: "name", 
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
-    { 
-      title: "Description", 
-      dataIndex: "description", 
+    {
+      title: "Description",
+      dataIndex: "description",
       key: "description",
       sorter: (a, b) => a.description.localeCompare(b.description),
     },
-    { 
-      title: "Country", 
-      dataIndex: "country", 
+    {
+      title: "Country",
+      dataIndex: "country",
       key: "country",
       sorter: (a, b) => a.country.localeCompare(b.country),
     },
-    { 
-      title: "Release Date", 
-      dataIndex: "releaseDate", 
+    {
+      title: "Release Date",
+      dataIndex: "releaseDate",
       key: "releaseDate",
       sorter: (a, b) => new Date(a.releaseDate) - new Date(b.releaseDate),
     },
-    { 
-      title: "Duration (min)", 
-      dataIndex: "durationMin", 
+    {
+      title: "Duration (min)",
+      dataIndex: "durationMin",
       key: "durationMin",
       sorter: (a, b) => a.durationMin - b.durationMin,
     },
@@ -204,6 +218,14 @@ const MovieManagement = () => {
           <Button type="primary" onClick={() => showModal(record)}>
             Update
           </Button>
+          <Button
+            type="default"
+            onClick={() => navigateToShowtimeManagement(record.id)}
+            className="bg-yellow-500 text-white hover:bg-yellow-400"
+          >
+            Manage Showtime
+          </Button>
+
           <Popconfirm
             title="Are you sure to delete this movie?"
             onConfirm={() => handleDelete(record.id)}
@@ -216,135 +238,176 @@ const MovieManagement = () => {
       ),
     },
   ];
-  
 
   return (
     <div>
-      <Button type="primary" onClick={() => showModal()}>
-        Add Movie
-      </Button>
-      <Button type="default" onClick={showCategoryModal} style={{ marginLeft: 8 }}>
-        Add Category
-      </Button>
-      <Modal
-        title={selectedMovie ? "Update Movie" : "Add Movie"}
-        visible={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="description"
-            label="Description"
-            rules={[{ required: true }]}
+      {currentView === "movieManagement" && (
+        <>
+          <Button type="primary" onClick={() => showModal()}>
+            Add Movie
+          </Button>
+          <Button
+            type="default"
+            onClick={showCategoryModal}
+            style={{ marginLeft: 8 }}
           >
-            <Input.TextArea rows={4} />
-          </Form.Item>
-          <Form.Item
-            name="country"
-            label="Country"
-            rules={[{ required: true }]}
+            Add Category
+          </Button>
+          <Modal
+            title={selectedMovie ? "Update Movie" : "Add Movie"}
+            visible={isModalVisible}
+            onOk={handleOk}
+            onCancel={handleCancel}
           >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="releaseDate"
-            label="Release Date"
-            rules={[{ required: true }]}
-          >
-            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
-          </Form.Item>
-          <Form.Item
-            name="durationMin"
-            label="Duration (min)"
-            rules={[{ required: true }]}
-          >
-            <Input type="number" />
-          </Form.Item>
-          <Form.Item
-            name="director"
-            label="Directors"
-            rules={[{ required: true }]}
-          >
-            <Select mode="tags" placeholder="Enter director names" />
-          </Form.Item>
-          <Form.Item name="actors" label="Actors" rules={[{ required: true }]}>
-            <Select mode="tags" placeholder="Enter actor names" />
-          </Form.Item>
-          <Form.Item
-            name="urlImage"
-            label="Image URL"
-            rules={[{ required: true }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="category_id"
-            label="Categories"
-            rules={[{ required: true, message: "Please select at least one category!" }]}
-          >
-            <Select
-              mode="multiple"
-              placeholder="Select categories"
-              options={categories ? categories.map((category) => ({
-                value: category.id,
-                label: category.name,
-              })) : []}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
+            <Form form={form} layout="vertical">
+              <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="description"
+                label="Description"
+                rules={[{ required: true }]}
+              >
+                <Input.TextArea rows={4} />
+              </Form.Item>
+              <Form.Item
+                name="country"
+                label="Country"
+                rules={[{ required: true }]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="releaseDate"
+                label="Release Date"
+                rules={[{ required: true }]}
+              >
+                <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
+              </Form.Item>
+              <Form.Item
+                name="durationMin"
+                label="Duration (min)"
+                rules={[{ required: true }]}
+              >
+                <Input type="number" />
+              </Form.Item>
+              <Form.Item
+                name="director"
+                label="Directors"
+                rules={[{ required: true }]}
+              >
+                <Select mode="tags" placeholder="Enter director names" />
+              </Form.Item>
+              <Form.Item
+                name="actors"
+                label="Actors"
+                rules={[{ required: true }]}
+              >
+                <Select mode="tags" placeholder="Enter actor names" />
+              </Form.Item>
+              <Form.Item
+                name="urlImage"
+                label="Image URL"
+                rules={[{ required: true }]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="category_id"
+                label="Categories"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select at least one category!",
+                  },
+                ]}
+              >
+                <Select
+                  mode="multiple"
+                  placeholder="Select categories"
+                  options={
+                    categories
+                      ? categories.map((category) => ({
+                          value: category.id,
+                          label: category.name,
+                        }))
+                      : []
+                  }
+                />
+              </Form.Item>
+            </Form>
+          </Modal>
 
-      {/* Category Modal */}
-      <Modal
-        title="Add Category"
-        visible={isCategoryModalVisible}
-        onOk={handleCategoryOk}
-        onCancel={handleCategoryCancel}
-      >
-        <Form layout="vertical">
-          <Form.Item
-            label="Category Name"
-            required
-            rules={[{ required: true, message: "Please input the category name!" }]}
+          {/* Category Modal */}
+          <Modal
+            title="Add Category"
+            visible={isCategoryModalVisible}
+            onOk={handleCategoryOk}
+            onCancel={handleCategoryCancel}
           >
-            <Input
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-            />
-          </Form.Item>
-          <Form.Item
-            label="Thumbnail URL"
-            required
-            rules={[{ required: true, message: "Please input the thumbnail URL!" }]}
-          >
-            <Input
-              value={categoryThumbnailUrl}
-              onChange={(e) => setCategoryThumbnailUrl(e.target.value)}
-            />
-          </Form.Item>
-          <Form.Item
-            label="URL Key"
-            required
-            rules={[{ required: true, message: "Please input the URL key!" }]}
-          >
-            <Input
-              value={categoryUrlKey}
-              onChange={(e) => setCategoryUrlKey(e.target.value)}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
+            <Form layout="vertical">
+              <Form.Item
+                label="Category Name"
+                required
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input the category name!",
+                  },
+                ]}
+              >
+                <Input
+                  value={categoryName}
+                  onChange={(e) => setCategoryName(e.target.value)}
+                />
+              </Form.Item>
+              <Form.Item
+                label="Thumbnail URL"
+                required
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input the thumbnail URL!",
+                  },
+                ]}
+              >
+                <Input
+                  value={categoryThumbnailUrl}
+                  onChange={(e) => setCategoryThumbnailUrl(e.target.value)}
+                />
+              </Form.Item>
+              <Form.Item
+                label="URL Key"
+                required
+                rules={[
+                  { required: true, message: "Please input the URL key!" },
+                ]}
+              >
+                <Input
+                  value={categoryUrlKey}
+                  onChange={(e) => setCategoryUrlKey(e.target.value)}
+                />
+              </Form.Item>
+            </Form>
+          </Modal>
 
-      <Table
-        loading={loadingMovies || loadingCategories}
-        columns={columns}
-        dataSource={movies}
-        rowKey="id"
-      />
+          <Table
+            loading={loadingMovies || loadingCategories}
+            columns={columns}
+            dataSource={movies}
+            rowKey="id"
+            pagination={{ pageSize: 5 }}
+            scroll={{ x: 1000 }}
+            F
+          />
+        </>
+      )}
+      {currentView === "showtimeManagement" && (
+        <ShowtimeManagement
+          movieId={selectedMovieId}
+          onBack={navigateBackToMovies}
+        />
+      )}
     </div>
   );
 };

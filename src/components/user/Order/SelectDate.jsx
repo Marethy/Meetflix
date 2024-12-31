@@ -1,22 +1,26 @@
 import React from "react";
 
-const SelectDate = ({ dates, selectedDate, onSelectDate }) => {
+const SelectDate = ({ dates = [], selectedDate, onDateSelect }) => {
+  if (!dates || !Array.isArray(dates)) {
+    return <div>Không có dữ liệu ngày nào để hiển thị.</div>;
+  }
+
   return (
-    <div className="flex gap-4 justify-center mt-6">
-      {dates.map((date) => (
-        <button
-          key={date.id}
-          onClick={() => onSelectDate(date)}
-          className={`py-2 px-4 rounded-lg font-semibold ${
-            selectedDate?.id === date.id
-              ? "bg-yellow-400 text-black"
-              : "bg-transparent border border-yellow-400 text-yellow-400"
-          }`}
-        >
-          <p>{date.formattedDate}</p>
-          <p>{date.weekday}</p>
-        </button>
-      ))}
+    <div className="mt-4">
+      <h3 className="text-lg font-bold mb-2">Chọn ngày:</h3>
+      <div className="flex gap-4">
+        {dates.map((date) => (
+          <button
+            key={date}
+            className={`py-2 px-4 rounded-lg ${
+              selectedDate === date ? "bg-blue-600 text-white" : "bg-gray-300 text-black"
+            }`}
+            onClick={() => onDateSelect(date)}
+          >
+            {date}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

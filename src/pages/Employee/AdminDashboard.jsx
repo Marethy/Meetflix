@@ -38,35 +38,7 @@ const AdminDashboard = () => {
   const { trendingMovies, isLoading: isLoadingMovies } = useFetchMovies();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        await TokenManager.getAccessToken();
-        const userData = await UserApi.getAllUser();
-        setUser(userData);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        message.error("Failed to load user data");
-      } finally {
-        setLoadingUser(false);
-      }
-    };
-
-    const fetchMovies = async () => {
-      try {
-        await TokenManager.getAccessToken();
-        await MovieApi.getMovies();
-      } catch (error) {
-        console.error("Error fetching movie data:", error);
-        message.error("Failed to load movie data");
-      } finally {
-        setLoadingMovies(false);
-      }
-    };
-
-    fetchUsers();
-    fetchMovies();
-  }, []);
+ 
 
   const onCollapse = (collapsed) => setCollapsed(collapsed);
 
@@ -79,7 +51,6 @@ const AdminDashboard = () => {
     { key: "7", icon: <PieChartOutlined />, label: "Statistics" }, // New Statistics section
   ];
 
-  // Cập nhật breadcrumb items
   const breadcrumbItems = [
     { key: '1', label: 'Dashboard' },
     {
@@ -126,7 +97,6 @@ const AdminDashboard = () => {
             {selectedMenuItem === "2" && <UserManagement />}
             {selectedMenuItem === "3" && <MovieManagement />}
             {selectedMenuItem === "5" && <TheaterManagement />}
-            {selectedMenuItem === "6" && <ShowtimeManagement />}
             {selectedMenuItem === "7" && <Statistics />} {/* Statistics Component */}
           </div>
         </Content>

@@ -27,11 +27,10 @@ const App = () => {
 
   return (
       <MovieProvider>
-        <div className="flex flex-col  bg-black">
+        <div className="flex flex-col bg-black">
           {location.pathname !== "/admin" && (
             <Header setSearchData={setSearchData} />
           )}
-x 
           <Routes>
             <Route path="/" element={<Navigate to="/user" />} />
             <Route

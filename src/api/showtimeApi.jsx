@@ -48,7 +48,7 @@ const ShowtimeApi = {
   async updateShowtime(id, showtimeData) {
     configureAxios();
     try {
-      const response = await axiosInstance.put(`/showtime/${id}`, showtimeData);
+      const response = await axiosInstance.put(`/api/v1/showtime/${id}`, showtimeData);
       return response.data;
     } catch (error) {
       if (error.response && error.response.status === 401) {
@@ -64,7 +64,7 @@ const ShowtimeApi = {
   },
 
   async getShowtimeFromOrder(requests) {
-    const response = await axiosInstance.post(`/showtime/order`, requests, {
+    const response = await axiosInstance.post(`/api/v1/showtime/order`, requests, {
       headers: { Authorization: undefined },
     });
     return response.data;
@@ -73,7 +73,7 @@ const ShowtimeApi = {
   async deleteShowtime(id) {
     configureAxios();
     try {
-      const response = await axiosInstance.delete(`/showtime/${id}`);
+      const response = await axiosInstance.delete(`/api/v1/showtime/${id}`);
       return response.data;
     } catch (error) {
       if (error.response && error.response.status === 401) {

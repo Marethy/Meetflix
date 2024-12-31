@@ -1,11 +1,24 @@
 import { axiosInstance, TokenManager, configureAxios } from "./apiClient";
 
 const SeatApi = {
-  async getSeatByProjectionRoomId(id) {
-    const response = await axiosInstance.get(`api/v1/seats/${id}`, {
-      headers: { Authorization: undefined },
-    });
-    return response.data;
+  async getSeats({ showtime, projectionRoomId, movieId, theaterId }) {
+    configureAxios();
+
+    try {
+      const response = await axiosInstance.get("/api/v1/seat", {
+        params: {
+          showtime,
+          projectionRoomId,
+          movieId,
+          theaterId,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching seat data:", error);
+      throw error;
+    }
   },
 };
-export default SeatApi
+
+export default SeatApi;
