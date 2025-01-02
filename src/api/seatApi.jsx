@@ -13,7 +13,7 @@ const SeatApi = {
           theaterId,
         }
       );
-      console.log("seat", JSON.stringify(response.data, null, 2)); // Hiển thị dữ liệu ghế ở dạng JSON đẹp
+      console.log("seat", JSON.stringify(response.data, null, 2));
       return response.data;
     } catch (error) {
       console.error("Error fetching seat data:", error);

@@ -80,4 +80,4 @@ function CinemaMovieDetailPage() {
   );
 }
 
-export default CinemaMovieDetailPage;
+export default CinemaMovieDetailPage

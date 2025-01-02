@@ -3,8 +3,7 @@ import { format, addDays, startOfWeek } from "date-fns";
 import { vi } from "date-fns/locale"; // Thêm locale tiếng Việt
 
 const WeekDays = ({ selectedDate, onDateSelect }) => {
-  // Bắt đầu từ Thứ Hai
-  const startDate = startOfWeek(new Date(), { weekStartsOn: 1 }); // Thứ Hai là ngày đầu tiên
+  const startDate = new Date(); // Hôm nay là ngày đầu tiên
   const days = Array.from({ length: 7 }, (_, i) => addDays(startDate, i));
 
   return (
@@ -12,10 +11,10 @@ const WeekDays = ({ selectedDate, onDateSelect }) => {
       {days.map((date) => (
         <button
           key={date.toISOString()}
-          className={`py-2 px-4 text-center rounded-lg ${
+          className={`py-2 px-4 text-center rounded-lg transform hover:-translate-y-[6px] ease-in-out duration-300 ${
             format(selectedDate, "yyyy-MM-dd") === format(date, "yyyy-MM-dd")
               ? "bg-yellow-500 text-black"
-              : "bg-blue-900 text-yellow-400"
+              : "bg-black text-yellow-500 border-yellow-500 border"
           }`}
           onClick={() => onDateSelect(date)}
         >

@@ -54,18 +54,18 @@ const Header = ({ setSearchData }) => {
   const isLoggedIn = Boolean(localStorage.getItem("username")); // Check if user is logged in
 
   return (
-    <div className="z-50 fixed bg-opacity-40 p-4 flex justify-between  w-full bg-black   ">
+    <div className="z-50 fixed bg-opacity-40 p-2 flex justify-between w-full bg-gradient-to-b from-black to-transparent">
       <div className="flex items-center gap-8">
-        <nav className="flex items-center space-x-5 text-white text-xl">
-          <Link to="/" className="text-4xl  text-red-700 font-bold">
+        <nav className="flex items-center text-white text-xl">
+          <Link to="/" className="text-2xl ml-3 text-red-700 font-bold">
             Meet
           </Link>
-          <Link to="/" className="hidden md:block hover:text-red-700">
+          <Link to="/" className="text-lg md:block font-normal w-12 ml-4 hover:font-medium duration-200 ease-in-out">
             Home
           </Link>
           <Link
             to="/user/contact"
-            className="hidden md:block hover:text-red-700"
+            className="text-lg md:block font-normal w-12 ml-4 hover:font-medium duration-200 ease-in-out mr-10"
           >
             Contact
           </Link>
@@ -74,7 +74,7 @@ const Header = ({ setSearchData }) => {
             <input
               type="text"
               placeholder="Search"
-              className="border rounded-2xl border-gray-300 p-2 pl-10 text-black"
+              className="border rounded-2xl border-gray-300 p-[2px] pl-10 text-black"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               aria-label="Search movies" // Accessibility label

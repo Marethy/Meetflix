@@ -1,7 +1,6 @@
 // src/api/index.js
 import CategoryApi from './categoryApi';
-import OrderApi from './orderApi';
-import { Statistic } from 'antd';
+
 
 export { default as AuthApi } from './authApi';
 export { default as MessageApi } from './messageApi';

@@ -1,78 +1,257 @@
 import React, { useState } from "react";
-import clsx from "clsx";
+import { useTheme } from "@mui/material/styles";
+import {
+  Box,
+  Typography,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Button,
+  IconButton,
+} from "@mui/material";
+import {
+  ExpandMore as ExpandMoreIcon,
+  Add as AddIcon,
+  Remove as RemoveIcon,
+} from "@mui/icons-material";
 
-const SeatSelection = ({ availableSeats, selectedSeats, onSeatSelect }) => {
-  const [error, setError] = useState("");
+const SeatSelection = ({ seats, selectedSeats, onSeatSelect }) => {
+  const rows = "ABCDEFGHIJKLMN".split("");
 
-  const handleSeatToggle = (seat) => {
-    if (seat.isReserved) {
-      setError("Ghế này đã được đặt trước.");
-      setTimeout(() => setError(""), 2000); // Ẩn lỗi sau 2 giây
-      return;
-    }
+  const grid = Array.from({ length: rows.length }, () => Array(14).fill(null));
 
-    const isSelected = selectedSeats.some((s) => s.id === seat.id);
-    const updatedSeats = isSelected
-      ? selectedSeats.filter((s) => s.id !== seat.id) // Bỏ ghế khỏi danh sách
-      : [...selectedSeats, seat]; // Thêm ghế vào danh sách
+  seats.forEach((seat) => {
+    const seatName = seat.name;
+    const rowIndex = rows.indexOf(seatName.slice(-1)); // Extract the row letter and find its index
+    const columnIndex = parseInt(seatName.match(/\d+/)[0], 10) - 1; // Extract the column number and adjust for 0-based index
+    grid[rowIndex][columnIndex] = seat;
+  });
 
-    onSeatSelect(updatedSeats);
-  };
-
-  const sortSeats = (seats) => {
-    return [...seats].sort((a, b) => {
-      // So sánh hàng (số trước chữ)
-      const rowA = parseInt(a.name.match(/\d+/)[0], 10);
-      const rowB = parseInt(b.name.match(/\d+/)[0], 10);
-
-      if (rowA !== rowB) return rowA - rowB;
-
-      // So sánh cột (chữ cái)
-      const colA = a.name.match(/[A-Z]/)[0];
-      const colB = b.name.match(/[A-Z]/)[0];
-
-      return colA.localeCompare(colB);
+  const handleSeatClick = (seat) => {
+    onSeatSelect((prevSelectedSeats) => {
+      if (prevSelectedSeats.some((s) => s.name === seat.name)) {
+        return prevSelectedSeats.filter((s) => s.name !== seat.name);
+      } else {
+        return [...prevSelectedSeats, seat];
+      }
     });
   };
 
   return (
-    <div className="mt-6">
-      <h3 className="text-lg font-bold mb-4">Chọn ghế:</h3>
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-
-      <div className="grid grid-cols-8 gap-2">
-        {availableSeats.map((seat) => (
-          <button
-            key={seat.id}
-            className={clsx(
-              "w-10 h-10 rounded text-center flex items-center justify-center border transition",
-              {
-                "bg-gray-400 text-white cursor-not-allowed": seat.isReserved, // Ghế đã đặt
-                "bg-blue-500 text-white hover:bg-blue-600": !seat.isReserved && selectedSeats.some((s) => s.id === seat.id), // Ghế đang chọn
-                "bg-gray-200 text-black hover:bg-gray-300": !seat.isReserved && !selectedSeats.some((s) => s.id === seat.id), // Ghế khả dụng
-              }
-            )}
-            onClick={() => handleSeatToggle(seat)}
-            disabled={seat.isReserved}
-          >
-            {seat.name}
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-4">
-        <h4 className="text-md font-semibold">Ghế đã chọn:</h4>
-        {selectedSeats.length > 0 ? (
-          <p className="text-green-500">
-            {sortSeats(selectedSeats)
-              .map((seat) => seat.name)
+    <Box
+      sx={{
+        width: 1,
+        display: "flex",
+        flexDirection: "column",
+        justifyItems: "center",
+        alignItems: "center",
+        paddingTop: 8,
+        zIndex: 10,
+        borderTop: "2px solid #222",
+      }}
+    >
+      <Box
+        sx={{
+          width: 0.8,
+          height: "100px",
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Box
+          sx={{
+            width: "320px",
+            height: "140px",
+            border: `2px solid red`,
+            borderRadius: 2,
+            display: "flex",
+            position: "relative",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            paddingX: 2,
+            paddingY: 1,
+            justifyItems: "flex-start",
+          }}
+        >
+          <Typography variant="h6" sx={{ color: "white", fontWeight: "bold" }}>
+            Selected Seats:
+          </Typography>
+          <Typography sx={{ color: "lightgray", fontSize: 14 }}>
+            {selectedSeats
+              .map((seat) => `${seat.name.slice(-1)}${seat.name.slice(0, -1)}`)
               .join(", ")}
-          </p>
-        ) : (
-          <p className="text-gray-500">Chưa có ghế nào được chọn.</p>
-        )}
-      </div>
-    </div>
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            width: "240px",
+            height: "140px",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{ color: "lightgray", fontWeight: "bold", mt: -2, ml: -2 }}
+          >
+            Note:
+          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
+            <Box
+              sx={{
+                width: 38,
+                height: 23,
+                backgroundColor: "white",
+                border: "1px solid black",
+                borderRadius: 1,
+                marginRight: 1,
+              }}
+            />
+            <Typography variant="body1" sx={{ color: "gray" }}>
+              Available Seat
+            </Typography>
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
+            <Box
+              sx={{
+                width: 38,
+                height: 23,
+                backgroundColor: "gray",
+                border: "1px solid black",
+                borderRadius: 1,
+                marginRight: 1,
+              }}
+            />
+            <Typography variant="body1" sx={{ color: "gray" }}>
+              Resersed Seat
+            </Typography>
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
+            <Box
+              sx={{
+                width: 38,
+                height: 23,
+                backgroundColor: "red",
+                border: "1px solid black",
+                borderRadius: 1,
+                marginRight: 1,
+              }}
+            />
+            <Typography variant="body1" sx={{ color: "gray" }}>
+              Selected Seat
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+      <Box
+        sx={{
+          mb: 4,
+          mt: 10,
+          py: 10,
+          border: "2px solid gray",
+          borderRadius: 2,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyItems: "center",
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{
+            color: "white",
+            fontWeight: "bold",
+            letterSpacing: "0.1em",
+            mb: 1,
+          }}
+        >
+          SCREEN
+        </Typography>
+        <div className="h-3 w-[600px] bg-white rounded-full self-center items-center mb-2" />
+        <Box
+          sx={{
+            height: 360,
+            px: 20,
+            display: "grid",
+            alignItems: 'center',
+            placeItems: 'center',
+            gridTemplateColumns: `repeat(14, 42px)`,
+            gridTemplateRows: `repeat(13, 30px)`,
+            justifyContent: "center",
+            gap: 1,
+            marginTop: 6,
+          }}
+        >
+          {grid.map((row, rowIndex) =>
+            row.map((seat, columnIndex) => (
+              <Box
+                key={`${rowIndex}-${columnIndex}`}
+                sx={{
+                  gridRow: rowIndex + 1,
+                  gridColumn: columnIndex + 1,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                {seat ? (
+                  <SeatUnit
+                    key={seat.id}
+                    seat={seat}
+                    isSelected={selectedSeats.some((s) => s.name === seat.name)}
+                    onClick={handleSeatClick}
+                  />
+                ) : (
+                  <Box
+                    sx={{
+                      width: 42,
+                      height: 26,
+                    }}
+                  />
+                )}
+              </Box>
+            ))
+          )}
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+const SeatUnit = ({ seat, isSelected, onClick }) => {
+  // const getBackgroundColor = (status, isSelected) => {
+  //   if (status === "unavailable") {
+  //     return "gray";
+  //   }
+  //   if (isSelected) {
+  //     return 'red';
+  //   }
+  //   return "white";
+  // };
+  const getBackgroundColor = (isSelected) => {
+    return isSelected ? "red" : "white";
+  };
+  return (
+    <Box
+      onClick={() => onClick(seat)}
+      sx={{
+        width: 42,
+        height: 26,
+        borderRadius: "4px",
+        backgroundColor: getBackgroundColor(isSelected),
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        cursor: "pointer",
+      }}
+    >
+      <Typography sx={{ color: "black", fontSize: 14, fontWeight: "bold" }}>
+        {`${seat.name.slice(-1)}${seat.name.slice(0, -1)}`}
+      </Typography>
+    </Box>
   );
 };
 

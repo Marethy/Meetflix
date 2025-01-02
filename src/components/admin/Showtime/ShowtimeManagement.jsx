@@ -46,7 +46,6 @@ const ShowtimeManagement = ({ movieId, onBack }) => {
 
   const updateShowtimeMutation = useMutation({
     mutationFn: ({ showtimeId, showtimeData }) => {
-      console.log(showtimeData); // Log the showtimeData
       return ShowtimeApi.updateShowtime(showtimeId, showtimeData);
     },
     onSuccess: () => {

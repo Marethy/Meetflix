@@ -3,16 +3,19 @@ import { axiosInstance, TokenManager, configureAxios } from "./apiClient";
 const OrderApi = {
   async createOrder(orderData) {
     configureAxios();
-    console.log("oderdata"+ orderData)
+    console.log("oderdata" + orderData);
     try {
       const response = await axiosInstance.post("/api/v1/order", orderData, {
         headers: { "X-Auth-User-Id": orderData.userId },
       });
       return response.data;
     } catch (error) {
-    
+      console.log("error" + error.response);
       if (error.response && error.response.status === 401) {
-        return await TokenManager.handleTokenRefresh(this.createOrder, orderData);
+        return await TokenManager.handleTokenRefresh(
+          this.createOrder,
+          orderData
+        );
       }
       console.error("Error creating order:", error);
       throw error;
@@ -20,7 +23,6 @@ const OrderApi = {
   },
 
   async getOrdersByCustomer(userId) {
-
     try {
       const response = await axiosInstance.get(`/api/v1/order/customer`, {
         headers: { "X-Auth-User-Id": userId },
@@ -33,7 +35,6 @@ const OrderApi = {
   },
 
   async deleteOrderTicket(orderData) {
-    
     configureAxios();
     try {
       const response = await axiosInstance.delete("/api/v1/order/ticket", {
@@ -43,7 +44,10 @@ const OrderApi = {
       return response.data;
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        return await TokenManager.handleTokenRefresh(this.deleteOrderTicket, orderData);
+        return await TokenManager.handleTokenRefresh(
+          this.deleteOrderTicket,
+          orderData
+        );
       }
       console.error("Error deleting order ticket:", error);
       throw error;

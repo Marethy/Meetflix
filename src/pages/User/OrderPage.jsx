@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import moment from "moment";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { TheaterApi, SeatApi, MovieApi } from "../../api"; // Đảm bảo rằng MovieApi đã được import
@@ -11,28 +12,28 @@ import {
 } from "../../components/user/Order";
 
 const OrderPage = () => {
-  const { id: movieId } = useParams(); // Lấy ID phim từ URL
-  const navigate = useNavigate(); // Điều hướng sau khi đặt vé thành công
+  const { id: movieId } = useParams();
+  const navigate = useNavigate();
 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedShowtime, setSelectedShowtime] = useState(null);
   const [selectedTheater, setSelectedTheater] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const [acceptedTerms, setAcceptedTerms] = useState(false); // Trạng thái checkbox điều khoản
-
-  // Fetch thông tin phim theo movieId
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  useEffect(() => {
+    console.log("Selected Seats:", selectedSeats);
+  }, [selectedSeats]);
   const { data: movieData, isLoading: isLoadingMovie } = useQuery({
     queryKey: ["movie", movieId],
     queryFn: async () => {
       if (movieId) {
-        return await MovieApi.getMovieById(movieId); // API lấy thông tin phim theo movieId
+        return await MovieApi.getMovieById(movieId);
       }
       return null;
     },
-    enabled: !!movieId, // Chỉ gọi API khi có movieId
+    enabled: !!movieId,
   });
 
-  // Fetch danh sách rạp có suất chiếu theo ngày và phim
   const { data: theaters = [], isLoading: isLoadingTheaters } = useQuery({
     queryKey: ["theaters", movieId, selectedDate],
     queryFn: async () => {
@@ -50,18 +51,16 @@ const OrderPage = () => {
         return [];
       }
     },
-    enabled: !!movieId && !!selectedDate, 
+    enabled: !!movieId && !!selectedDate,
   });
 
-  // Fetch danh sách ghế có sẵn theo suất chiếu và rạp
   const { data: availableSeats = [], isFetching: isFetchingSeats } = useQuery({
     queryKey: ["seats", selectedShowtime?.id, selectedTheater?.id],
     queryFn: () => {
       if (selectedShowtime && selectedTheater) {
-        const formattedStartTime = new Date(selectedShowtime.startTime)
-          .toISOString()
-          .slice(0, 19)
-          .replace("T", " ");
+        const formattedStartTime = moment(selectedShowtime.startTime).format(
+          "YYYY-MM-DD HH:mm:ss"
+        );
 
         return SeatApi.getSeats({
           showtime: formattedStartTime,
@@ -69,15 +68,16 @@ const OrderPage = () => {
           movieId: movieId,
           theaterId: selectedTheater.id,
         }).catch(() => {
-          return { allSeats: [], orderedSeat: [] };
+          return { allSeats, orderedSeat };
         });
       } else {
         return { allSeats: [], orderedSeat: [] };
       }
     },
-    enabled: !!selectedShowtime && !!selectedTheater, 
+    enabled: !!selectedShowtime && !!selectedTheater,
   });
-
+  console.log(selectedSeats);
+  console.log(availableSeats);
   const handleConfirmOrder = () => {
     if (!selectedShowtime || !selectedTheater || selectedSeats.length === 0) {
       message.warning("Vui lòng hoàn tất các bước chọn.");
@@ -88,44 +88,74 @@ const OrderPage = () => {
       message.warning("Vui lòng đồng ý với điều khoản trước khi tiếp tục.");
       return;
     }
-
     const orderData = {
-      showtime: selectedShowtime.startTime,
+      showtime: moment(selectedShowtime.startTime).format(
+        "YYYY-MM-DD HH:mm:ss"
+      ),
       projectionRoomId: selectedShowtime.projectionRoom.id,
       movieId,
       theaterId: selectedTheater.id,
       seats: selectedSeats,
       movieName: movieData.name,
       theaterName: selectedTheater.name,
-      roomName: selectedShowtime.roomName,
+      roomName: selectedShowtime.projectionRoom.number,
     };
 
     console.log("Order Data:", orderData);
 
-    navigate(`/user/cinema_movies/${movieId}/checkout`, { state: { orderData } });
+    navigate(`/user/cinema_movies/${movieId}/checkout`, {
+      state: { orderData },
+    });
   };
-
   return (
-    <div className="container mx-auto my-20 px-4 text-white">
-      <h2 className="text-2xl font-bold mb-6">Đặt vé xem phim</h2>
+    <div className="container w-full items-center flex flex-col py-20 px-[20%] text-white">
+      <p className="text-5xl font-bold w-full tracking-widest">
+        ĐẶT VÉ XEM PHIM
+      </p>
 
-      {/* Hiển thị thông tin phim */}
       {isLoadingMovie ? (
         <Spin tip="Đang tải thông tin phim..." />
       ) : (
         movieData && (
-          <div className="movie-info">
-            <h3 className="text-xl font-semibold">{movieData.name}</h3>
-            <p>{movieData.description}</p>
+          <div className="flex flex-row md:flex-row gap-8 mx-auto items-center my-10">
+            {/* Movie Poster */}
+            <div className="  flex-shrink-0">
+              <img
+                src={movieData.urlImage}
+                alt={movieData.name}
+                className="ml-20 rounded-lg shadow-lg w-[50%] "
+              />
+            </div>
+            <div className="flex flex-col items-start justify-start">
+            <p>
+              <span className="text-lg font-semibold text-[#666]">Phim: </span>
+              <span className="text-lg font-semibold text-[#999]">
+                {movieData.name}
+              </span>
+            </p>
+            <span className="text-lg font-semibold text-[#666]">Mô tả: </span>
+            <span className="text-lg font-semibold text-[#999] overflow-hidden whitespace-nowrap text-ellipsis w-[50%]">
+              {movieData.description}
+            </span></div>
           </div>
         )
       )}
 
-      {/* Bước 1: Chọn ngày */}
       <WeekDays selectedDate={selectedDate} onDateSelect={setSelectedDate} />
+      {/* Bước 2: Chọn rạp */}
+      {selectedDate && isLoadingTheaters ? (
+        <Spin tip="Đang tải danh sách rạp..." />
+      ) : (
+        <SelectTheater
+          theaters={theaters}
+          selectedTheater={selectedTheater}
+          onTheaterSelect={setSelectedTheater}
+        />
+      )}
 
-      {/* Bước 2: Chọn suất chiếu */}
+      {/* Bước 3: Chọn suất chiếu */}
       {selectedDate &&
+        selectedTheater &&
         (isLoadingTheaters ? (
           <Spin tip="Đang tải rạp chiếu..." />
         ) : (
@@ -136,18 +166,6 @@ const OrderPage = () => {
           />
         ))}
 
-      {/* Bước 3: Chọn rạp */}
-      {selectedShowtime &&
-        (isLoadingTheaters ? (
-          <Spin tip="Đang tải danh sách rạp..." />
-        ) : (
-          <SelectTheater
-            theaters={theaters}
-            selectedTheater={selectedTheater}
-            onTheaterSelect={setSelectedTheater}
-          />
-        ))}
-
       {/* Bước 4: Chọn ghế */}
       {selectedShowtime &&
         selectedTheater &&
@@ -155,7 +173,7 @@ const OrderPage = () => {
           <Spin tip="Đang tải ghế..." />
         ) : (
           <SeatSelection
-            availableSeats={availableSeats.allSeats}
+            seats={availableSeats.allSeats}
             selectedSeats={selectedSeats}
             onSeatSelect={setSelectedSeats}
           />
@@ -166,6 +184,7 @@ const OrderPage = () => {
         <input
           type="checkbox"
           id="terms"
+          value={acceptedTerms}
           onChange={(e) => setAcceptedTerms(e.target.checked)}
         />
         <label htmlFor="terms" className="ml-2">

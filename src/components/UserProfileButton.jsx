@@ -11,7 +11,7 @@ const UserProfileButton = () => {
   const handleMenuClick = ({ key }) => {
     if (key === "profile") {
       message.info("Redirecting to profile...");
-      navigate("/profile");
+      navigate("user/profile");
     } else if (key === "logout") {
       localStorage.removeItem("username");
       localStorage.removeItem("password");
