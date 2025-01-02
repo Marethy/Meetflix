@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "@tanstack/react-query"; // Thêm import u
 import { message } from "antd";
 import { UserApi, OrderApi } from "../../api";
 import axios from "axios";
+import bgImage from "../../assets/images/bg.png";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -145,22 +146,29 @@ const CheckoutPage = () => {
               <a href="#terms" className="text-yellow-500">
                 điều khoản của MeetFlix
               </a>
-              .
             </span>
           </div>
         </div>
+        <button
+          className=" font-bold py-2 text-xl tracking-widest mt-4 bg-black text-yellow-600 border border-yellow-600 rounded shadow hover:bg-yellow-600 hover:text-black transition"
+          onClick={handleConfirmOrder}
+          disabled={confirmOrderMutation.isLoading}
+        >
+          {confirmOrderMutation.isLoading ? "Đang xử lý..." : "Tiếp tục"}
+        </button>
       </div>
-      <div className="flex flex-col w-[55%] mx-6 p-5 bg-yellow-600">
-        {/* Thanh toán */}
-        <h3 className="text-3xl text-black font-bold mb-4 mt-4 uppercase self-center tracking-wider">THANH TOÁN</h3>
-        <p className="text-black mb-4">
-          Số tiền cần thanh toán: <strong>95,000 VND</strong>
-        </p>
-        
-
+      <div className="flex flex-col w-[55%] mx-6 p-5 bg-yellow-600 relative">
+        <img
+          src={bgImage}
+          alt="Background"
+          className="absolute right-0 bottom-0 w-[100%] h-[100%] bg-cover z-0 opacity-15"
+        />
         {/* Step 3: Ticket Information */}
-        <h3 className="text-3xl text-black font-bold mb-4 mt-4 uppercase self-center tracking-wider">THÔNG TIN VÉ PHIM</h3>
-        <p className="text-black mb-2">
+        <h3 className="text-3xl text-black font-bold mb-4 mt-4 uppercase self-center tracking-wider">
+          THÔNG TIN VÉ PHIM
+        </h3>
+        <div className="text-xl flex flex-col space-y-4 mt-4 ml-2">
+          <p className="text-black mb-2">
           <strong>Phim:</strong> {orderData?.movieName || "N/A"}
         </p>
         <p className="text-black mb-2">
@@ -173,15 +181,14 @@ const CheckoutPage = () => {
           <strong>Thời gian:</strong> {orderData?.showtime || "N/A"}
         </p>
         <p className="text-black mb-2">
-          <strong>Số ghế:</strong> {orderData?.seats?.join(", ") || "N/A"}
+          <strong>Số ghế:</strong> {orderData?.seats?.map(seat => seat.name).join(", ") || "N/A"}
         </p>
-        <button
-          className=" font-bold py-2 text-xl tracking-widest mt-4 bg-black text-yellow-600 border border-black rounded shadow hover:bg-yellow-600 hover:text-black transition"
-          onClick={handleConfirmOrder}
-          disabled={confirmOrderMutation.isLoading}
-        >
-          {confirmOrderMutation.isLoading ? "Đang xử lý..." : "Tiếp tục"}
-        </button>
+        </div>
+        
+        <div className="h-[1px] my-4 w-[94%] self-center bg-black absolute bottom-20" />
+        <p className="text-black mb-4 text-2xl self-center font-medium tracking-wide absolute bottom-6">
+          SỐ TIỀN CẦN THANH TOÁN: 95,000 VND
+        </p>
       </div>
     </div>
   );

@@ -200,7 +200,7 @@ const OrderPage = () => {
       <button
         onClick={handleConfirmOrder}
         className="mt-4 py-2 px-6 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-500 transition"
-        disabled={!selectedSeats.length || !acceptedTerms}
+        // disabled={!selectedSeats.length || !acceptedTerms}
       >
         Xác nhận đặt vé
       </button>
