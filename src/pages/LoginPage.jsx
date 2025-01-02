@@ -3,15 +3,13 @@ import { Form, Input, Button, message, Checkbox } from "antd";
 import { useNavigate } from "react-router-dom";
 import { TokenManager } from "../api/apiClient";
 import loginBackground from "../assets/images/footer-bg.jpg";
-import { decodeJwt } from "jose"; // Import decodeJwt from jose
+import { decodeJwt } from "jose"; 
 
 const getRoleFromToken = (token) => {
   try {
-    var payload = decodeJwt(token); // Decode the JWT token
-    console.log("Decoded payload:", payload); // Log the payload for inspection
-
-    const roles = payload.authorities || payload.scope || []; // Adjust based on your token structure
-    console.log(roles);
+    var payload = decodeJwt(token); 
+    localStorage.setItem("userId", payload.id);
+    const roles = payload.authorities || payload.scope || [];
 
     // Determine role based on included roles
     if (roles.includes("ADMIN")) {

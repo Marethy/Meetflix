@@ -1,49 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { Card, Col, Row, Statistic, Spin, message } from "antd";
 import { UserOutlined, DollarOutlined, FileDoneOutlined, ShoppingCartOutlined } from "@ant-design/icons";
-import { UserApi, MovieApi } from "../../../api";  // Import các API
+import { StatisticApi } from "../../../api";  
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';  // Recharts import
 
 const Statistics = () => {
   const [loading, setLoading] = useState(true);
   const [statistics, setStatistics] = useState({
-    totalUsers: 20,
-    totalTicketsSold: 12,
-    totalRevenue: "123.000.00",
-    totalMovies: 32,
-    totalScreeningMovies: 12, 
+    totalUsers: 0,
+    totalTicketsSold: 0,
+    totalRevenue: 0,
+    totalMovies: 0,
+    totalScreeningMovies: 0,
   });
 
   useEffect(() => {
     const fetchStatistics = async () => {
+      setLoading(true);
+  
       try {
-        setLoading(true);
-        
-        // Lấy tổng số người dùng
-        const userData = await UserApi.getAllUser(); 
-        const totalUsers = userData.length;  
-        
-        // Lấy tổng số vé đã bán
-        const ticketData = await TicketApi.getAllTickets();  // Lấy danh sách vé
-        const totalTicketsSold = ticketData.length;  // Đếm số lượng vé bán
-        
-        // Lấy tổng doanh thu
-        const totalRevenue = ticketData.reduce((acc, ticket) => acc + ticket.price, 0);  // Tính tổng doanh thu từ giá vé
-        
-        // Lấy tổng số phim
-        const movieData = await MovieApi.getMovies();  // Lấy danh sách phim
-        const totalMovies = movieData.length;  // Đếm tổng số phim
-        
-        // Lấy tổng số phim đang chiếu
-        const screeningMovies = movieData.filter(movie => movie.status === "playing");  // Lọc các phim đang chiếu
-        const totalScreeningMovies = screeningMovies.length;
+        // Fetch statistics from API
+        const data = await StatisticApi.getStatistic();
 
-        // Cập nhật vào state
+        // Update statistics state with API data
         setStatistics({
-          totalUsers,
-          totalTicketsSold,
-          totalRevenue,
-          totalMovies,
-          totalScreeningMovies,
+          totalUsers: data.userCount,
+          totalTicketsSold: data.totalTicketSold,
+          totalRevenue: data.revenue,
+          totalMovies: data.totalMovies,
+          totalScreeningMovies: 0, // Assuming you will calculate this from movies if needed
         });
       } catch (error) {
         console.error("Error fetching statistics:", error);
@@ -52,13 +37,25 @@ const Statistics = () => {
         setLoading(false);
       }
     };
-
+  
     fetchStatistics();
   }, []);
 
   if (loading) {
     return <Spin size="large" style={{ display: "block", textAlign: "center", marginTop: "50px" }} />;
   }
+
+  // Data for charts
+  const generalStatsData = [
+    { name: 'Users', value: statistics.totalUsers },
+    { name: 'Tickets Sold', value: statistics.totalTicketsSold },
+    { name: 'Movies', value: statistics.totalMovies },
+    { name: 'Screening Movies', value: statistics.totalScreeningMovies },
+  ];
+
+  const revenueData = [
+    { name: 'Total Revenue', value: statistics.totalRevenue },
+  ];
 
   return (
     <div style={{ padding: "24px" }}>
@@ -115,6 +112,34 @@ const Statistics = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* Chart for General Stats (Users, Tickets, Movies, Screening Movies) */}
+      <div style={{ marginTop: '20px', height: '300px' }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={generalStatsData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="value" fill="#8884d8" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Chart for Revenue */}
+      <div style={{ marginTop: '20px', height: '300px' }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={revenueData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="value" fill="#82ca9d" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };

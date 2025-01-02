@@ -11,12 +11,28 @@ const SeatSelection = ({ availableSeats, selectedSeats, onSeatSelect }) => {
       return;
     }
 
-    const isSelected = selectedSeats.includes(seat.id);
+    const isSelected = selectedSeats.some((s) => s.id === seat.id);
     const updatedSeats = isSelected
-      ? selectedSeats.filter((s) => s !== seat.id) // Bỏ ghế khỏi danh sách
-      : [...selectedSeats, seat.id]; // Thêm ghế vào danh sách
+      ? selectedSeats.filter((s) => s.id !== seat.id) // Bỏ ghế khỏi danh sách
+      : [...selectedSeats, seat]; // Thêm ghế vào danh sách
 
     onSeatSelect(updatedSeats);
+  };
+
+  const sortSeats = (seats) => {
+    return [...seats].sort((a, b) => {
+      // So sánh hàng (số trước chữ)
+      const rowA = parseInt(a.name.match(/\d+/)[0], 10);
+      const rowB = parseInt(b.name.match(/\d+/)[0], 10);
+
+      if (rowA !== rowB) return rowA - rowB;
+
+      // So sánh cột (chữ cái)
+      const colA = a.name.match(/[A-Z]/)[0];
+      const colB = b.name.match(/[A-Z]/)[0];
+
+      return colA.localeCompare(colB);
+    });
   };
 
   return (
@@ -32,14 +48,14 @@ const SeatSelection = ({ availableSeats, selectedSeats, onSeatSelect }) => {
               "w-10 h-10 rounded text-center flex items-center justify-center border transition",
               {
                 "bg-gray-400 text-white cursor-not-allowed": seat.isReserved, // Ghế đã đặt
-                "bg-blue-500 text-white hover:bg-blue-600": !seat.isReserved && selectedSeats.includes(seat.id), // Ghế đang chọn
-                "bg-gray-200 text-black hover:bg-gray-300": !seat.isReserved && !selectedSeats.includes(seat.id), // Ghế khả dụng
+                "bg-blue-500 text-white hover:bg-blue-600": !seat.isReserved && selectedSeats.some((s) => s.id === seat.id), // Ghế đang chọn
+                "bg-gray-200 text-black hover:bg-gray-300": !seat.isReserved && !selectedSeats.some((s) => s.id === seat.id), // Ghế khả dụng
               }
             )}
             onClick={() => handleSeatToggle(seat)}
             disabled={seat.isReserved}
           >
-            {seat.label}
+            {seat.name}
           </button>
         ))}
       </div>
@@ -47,7 +63,11 @@ const SeatSelection = ({ availableSeats, selectedSeats, onSeatSelect }) => {
       <div className="mt-4">
         <h4 className="text-md font-semibold">Ghế đã chọn:</h4>
         {selectedSeats.length > 0 ? (
-          <p className="text-green-500">{selectedSeats.join(", ")}</p>
+          <p className="text-green-500">
+            {sortSeats(selectedSeats)
+              .map((seat) => seat.name)
+              .join(", ")}
+          </p>
         ) : (
           <p className="text-gray-500">Chưa có ghế nào được chọn.</p>
         )}

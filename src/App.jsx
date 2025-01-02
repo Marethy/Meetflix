@@ -19,6 +19,7 @@ import AdminDashboard from "./pages/Employee/AdminDashboard";
 import CinemaMovieDetailPage from "./pages/User/CinemaMovieDetailPage";
 import ErrorBoundary from "./components/ErrorBoundary ";
 import OrderPage from "./pages/User/OrderPage"
+import CheckoutPage from "./pages/User/CheckoutPage";
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -41,6 +42,7 @@ const App = () => {
             <Route path="/user/movies/:id" element={<MovieDetailPage />} />
             <Route path = "user/cinema_movies/:id" element={<CinemaMovieDetailPage/>}/>
             <Route path = "user/cinema_movies/:id/order" element={<OrderPage/>}/>
+            <Route path = "user/cinema_movies/:id/checkout" element={<CheckoutPage/>}/>
 
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />

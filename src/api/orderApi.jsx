@@ -3,12 +3,14 @@ import { axiosInstance, TokenManager, configureAxios } from "./apiClient";
 const OrderApi = {
   async createOrder(orderData) {
     configureAxios();
+    console.log("oderdata"+ orderData)
     try {
       const response = await axiosInstance.post("/api/v1/order", orderData, {
         headers: { "X-Auth-User-Id": orderData.userId },
       });
       return response.data;
     } catch (error) {
+    
       if (error.response && error.response.status === 401) {
         return await TokenManager.handleTokenRefresh(this.createOrder, orderData);
       }
