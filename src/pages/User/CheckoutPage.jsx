@@ -5,6 +5,7 @@ import { message } from "antd";
 import { UserApi, OrderApi } from "../../api";
 import axios from "axios";
 import bgImage from "../../assets/images/bg.png";
+import moment from "moment";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -26,7 +27,10 @@ const CheckoutPage = () => {
     email: "",
     agreeToTerms: false,
   });
-
+  // Calculate total bill
+  const seatPrice = 50000;
+  const totalSeats = orderData?.seats?.length || 0;
+  const totalBill = totalSeats * seatPrice;
   // Cập nhật thông tin khách hàng nếu có
   useEffect(() => {
     if (userData) {
@@ -169,25 +173,27 @@ const CheckoutPage = () => {
         </h3>
         <div className="text-xl flex flex-col space-y-4 mt-4 ml-2">
           <p className="text-black mb-2">
-          <strong>Phim:</strong> {orderData?.movieName || "N/A"}
-        </p>
-        <p className="text-black mb-2">
-          <strong>Rạp:</strong> {orderData?.theaterName || "N/A"}
-        </p>
-        <p className="text-black mb-2">
-          <strong>Phòng chiếu:</strong> {orderData?.roomName || "N/A"}
-        </p>
-        <p className="text-black mb-2">
-          <strong>Thời gian:</strong> {orderData?.showtime || "N/A"}
-        </p>
-        <p className="text-black mb-2">
-          <strong>Số ghế:</strong> {orderData?.seats?.map(seat => seat.name).join(", ") || "N/A"}
-        </p>
+            <strong>Phim:</strong> {orderData?.movieName || "N/A"}
+          </p>
+          <p className="text-black mb-2">
+            <strong>Rạp:</strong> {orderData?.theaterName || "N/A"}
+          </p>
+          <p className="text-black mb-2">
+            <strong>Phòng chiếu:</strong> {orderData?.roomName || "N/A"}
+          </p>
+          <p className="text-black mb-2">
+            <strong>Thời gian:</strong>{" "}
+            {moment(orderData?.showtime).format("DD/MM/YYYY HH:mm") || "N/A"}
+          </p>
+          <p className="text-black mb-2">
+            <strong>Số ghế:</strong>{" "}
+            {orderData?.seats?.map((seat) => seat.name).join(", ") || "N/A"}
+          </p>
         </div>
-        
+
         <div className="h-[1px] my-4 w-[94%] self-center bg-black absolute bottom-20" />
         <p className="text-black mb-4 text-2xl self-center font-medium tracking-wide absolute bottom-6">
-          SỐ TIỀN CẦN THANH TOÁN: 95,000 VND
+          <strong>Tổng hóa đơn:</strong> {totalBill.toLocaleString()} VND
         </p>
       </div>
     </div>

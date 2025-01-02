@@ -20,9 +20,6 @@ const OrderPage = () => {
   const [selectedTheater, setSelectedTheater] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  useEffect(() => {
-    console.log("Selected Seats:", selectedSeats);
-  }, [selectedSeats]);
   const { data: movieData, isLoading: isLoadingMovie } = useQuery({
     queryKey: ["movie", movieId],
     queryFn: async () => {
@@ -76,11 +73,9 @@ const OrderPage = () => {
     },
     enabled: !!selectedShowtime && !!selectedTheater,
   });
-  console.log(selectedSeats);
-  console.log(availableSeats);
   const handleConfirmOrder = () => {
     if (!selectedShowtime || !selectedTheater || selectedSeats.length === 0) {
-      message.warning("Vui lòng hoàn tất các bước chọn.");
+      message.warning("Vui lòng hoàn tất các bước trước khi xác nhận đặt vé.");
       return;
     }
 
@@ -88,6 +83,7 @@ const OrderPage = () => {
       message.warning("Vui lòng đồng ý với điều khoản trước khi tiếp tục.");
       return;
     }
+
     const orderData = {
       showtime: moment(selectedShowtime.startTime).format(
         "YYYY-MM-DD HH:mm:ss"
@@ -107,6 +103,7 @@ const OrderPage = () => {
       state: { orderData },
     });
   };
+
   return (
     <div className="container w-full items-center flex flex-col py-20 px-[20%] text-white">
       <p className="text-5xl font-bold w-full tracking-widest">
@@ -127,16 +124,19 @@ const OrderPage = () => {
               />
             </div>
             <div className="flex flex-col items-start justify-start">
-            <p>
-              <span className="text-lg font-semibold text-[#666]">Phim: </span>
-              <span className="text-lg font-semibold text-[#999]">
-                {movieData.name}
+              <p>
+                <span className="text-lg font-semibold text-[#666]">
+                  Phim:{" "}
+                </span>
+                <span className="text-lg font-semibold text-[#999]">
+                  {movieData.name}
+                </span>
+              </p>
+              <span className="text-lg font-semibold text-[#666]">Mô tả: </span>
+              <span className="text-lg font-semibold text-[#999] overflow-hidden whitespace-nowrap text-ellipsis w-[50%]">
+                {movieData.description}
               </span>
-            </p>
-            <span className="text-lg font-semibold text-[#666]">Mô tả: </span>
-            <span className="text-lg font-semibold text-[#999] overflow-hidden whitespace-nowrap text-ellipsis w-[50%]">
-              {movieData.description}
-            </span></div>
+            </div>
           </div>
         )
       )}
@@ -174,6 +174,7 @@ const OrderPage = () => {
         ) : (
           <SeatSelection
             seats={availableSeats.allSeats}
+            orderedSeats={availableSeats.orderedSeat}
             selectedSeats={selectedSeats}
             onSeatSelect={setSelectedSeats}
           />
@@ -184,15 +185,18 @@ const OrderPage = () => {
         <input
           type="checkbox"
           id="terms"
-          value={acceptedTerms}
-          onChange={(e) => setAcceptedTerms(e.target.checked)}
+          checked={acceptedTerms}
+          onChange={(e) => {
+            console.log("Checkbox state changed:", e.target.checked);
+            setAcceptedTerms(e.target.checked);
+          }}
         />
+
         <label htmlFor="terms" className="ml-2">
           Đồng ý với{" "}
-          <a href="/terms" target="_blank" className="text-blue-500">
+          <a href="/terms" target="_blank" className="text-yellow-500">
             điều khoản
           </a>
-          .
         </label>
       </div>
 
@@ -200,7 +204,9 @@ const OrderPage = () => {
       <button
         onClick={handleConfirmOrder}
         className="mt-4 py-2 px-6 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-500 transition"
-        // disabled={!selectedSeats.length || !acceptedTerms}
+        disabled={
+          !selectedTheater || !selectedShowtime || selectedSeats.length === 0
+        }
       >
         Xác nhận đặt vé
       </button>

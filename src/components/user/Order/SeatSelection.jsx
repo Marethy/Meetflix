@@ -15,7 +15,7 @@ import {
   Remove as RemoveIcon,
 } from "@mui/icons-material";
 
-const SeatSelection = ({ seats, selectedSeats, onSeatSelect }) => {
+const SeatSelection = ({ seats, orderedSeats, selectedSeats, onSeatSelect }) => {
   const rows = "ABCDEFGHIJKLMN".split("");
 
   const grid = Array.from({ length: rows.length }, () => Array(14).fill(null));
@@ -203,6 +203,7 @@ const SeatSelection = ({ seats, selectedSeats, onSeatSelect }) => {
                     seat={seat}
                     isSelected={selectedSeats.some((s) => s.name === seat.name)}
                     onClick={handleSeatClick}
+                    isOrdered={orderedSeats.includes(seat.name)}
                   />
                 ) : (
                   <Box
@@ -221,18 +222,15 @@ const SeatSelection = ({ seats, selectedSeats, onSeatSelect }) => {
   );
 };
 
-const SeatUnit = ({ seat, isSelected, onClick }) => {
-  // const getBackgroundColor = (status, isSelected) => {
-  //   if (status === "unavailable") {
-  //     return "gray";
-  //   }
-  //   if (isSelected) {
-  //     return 'red';
-  //   }
-  //   return "white";
-  // };
-  const getBackgroundColor = (isSelected) => {
-    return isSelected ? "red" : "white";
+const SeatUnit = ({ seat, isSelected, onClick, isOrdered }) => {
+  const getBackgroundColor = (status, isSelected) => {
+    if (isOrdered) {
+      return "gray";
+    }
+    if (isSelected) {
+      return 'red';
+    }
+    return "white";
   };
   return (
     <Box
