@@ -42,8 +42,11 @@ const Banner = () => {
 
   return (
     <div
-      className="relative w-full md:h-[600px] h-[1000px] bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: `url(${imgBanner})` }}
+      className="relative w-full md:h-[660px] h-[1000px] bg-cover bg-center bg-no-repeat"
+      // style={{ backgroundImage: `url(${imgBanner})` }}
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1)), url(${imgBanner})`,
+      }}
     >
       <div className="w-full h-full bg-black/40 absolute inset-0" />
       <div className="flex flex-col md:flex-row items-center justify-between absolute md:top-1/2 top-10 -translate-x-1/2 left-1/2 md:-translate-y-1/2 w-full">

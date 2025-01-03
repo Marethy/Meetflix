@@ -3,7 +3,8 @@ import moment from "moment";
 
 const SelectShowtime = ({ showtimes, selectedShowtime, onShowtimeSelect }) => {
   console.log(showtimes);
-
+console.log(selectedShowtime);
+console.log(onShowtimeSelect)
   return (
     <div className="mb-6 text-white mx-auto ">
       <h3 className="text-xl font-bold tracking-wider mt-6">SELECT SHOWTIME</h3>

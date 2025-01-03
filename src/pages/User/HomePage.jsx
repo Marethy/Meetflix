@@ -17,21 +17,21 @@ const HomePage = ({ searchData }) => {
           <MovieSearch title="Kết quả tìm kiếm" data={searchData} />
         ) : (
           <>
-            <h1 className="text-red-700 text-3xl text-center font-bold font-[arial]">
+            <h1 className="text-white text-5xl text-center font-bold font-sans tracking-wider">
               {" "}
-              <p className=" text-red-700 text-3xl text-center font-bold font-[arial]">
-                Đặt vé phim
+              <p className=" text-white text-5xl -mt-8 mb-32 text-center font-bold font-sans tracking-wider">
+                ĐẶT VÉ XEM PHIM
               </p>
               <CinemaMovieList />
-              Xem trực tiếp trong kho phim
+              <p className="my-32">XEM TRỰC TIẾP TRÊN KHO PHIM{" "}</p>
             </h1>
 
             <MovieList
-              title="Phim đang hot"
+              title="PHIM ĐANG HOT"
               data={trendingMovies.slice(0, 10)}
             />
             <MovieList
-              title="Phim hay nhất"
+              title="PHIM HAY NHẤT"
               data={topRatedMovies.slice(0, 10)}
             />
           </>

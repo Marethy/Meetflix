@@ -5,7 +5,11 @@ import "react-multi-carousel/lib/styles.css";
 import { MovieContext } from "../../context/MovieDetailContext";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
-
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import PublicIcon from "@mui/icons-material/Public";
+import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import PersonOffIcon from "@mui/icons-material/PersonOff";
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 const responsive = {
   superLargeDesktop: {
     breakpoint: { max: 4000, min: 3000 },
@@ -30,24 +34,45 @@ const MovieList = ({ title, data }) => {
 
   return (
     <div className="my-10 px-2 md:px-10 max-w-full">
-      <h2 className="text-lg md:text-2xl   mb-4">{title}</h2>
+      <h2 className="text-3xl font-bold text-[#777] md:text-3xl mb-10">{title}</h2>
       <Carousel responsive={responsive} draggable={false}>
-        {data?.map((movie) => (
+      {data?.map((movie) => (
           <div
             key={movie.id}
-            className="w-auto h-[200px] rounded-md md:w-auto md:h-[300px] bg-cover bg-no-repeat bg-center relative hover:scale-110 transition-transform duration-500 ease-in-out cursor-pointer m-1"
-            style={{
-              backgroundImage: `url(${import.meta.env.VITE_IMG_URL}${
-                movie.poster_path
-              })`,
-            }}
+            className="slide-item relative flex-shrink-0 w-[180px] h-[270px] rounded-md overflow-hidden"
             onClick={() => navigate(`/user/movies/${movie.id}`)}
           >
-            <div className="hidden md:block bg-black w-full h-full opacity-40 absolute top-0 left-0 z-0">
-              <div className="relative mx-auto p-4 flex flex-col items-center justify-end h-full">
-                <h3 className="text-md uppercase">
+            <img
+              className="absolute slide-item-poster w-[180px] h-[270px] object-cover rounded-md z-[9]"
+              src={`${import.meta.env.VITE_IMG_URL}${movie.poster_path}`}
+              alt={`${movie.name || movie.title || 'Movie'} poster`}
+            />
+            <div className="absolute slide-item-filter w-[180px] h-[270px] bg-black z-10 opacity-50" />
+            <div className="absolute slide-item-info w-full h-[170px] z-[11]">
+              <div className="text-white flex flex-col font-bold py-3 px-[6px]">
+              <div
+                  className="text-[17px] flex self-center justify-self-center place-self-center h-[70px]"
+                  style={{
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    lineHeight: 1.25,
+                  }}
+                >
                   {movie.name || movie.title || movie.original_title}
-                </h3>
+                </div>
+                <div className="text-xs pl-2 flex flex-col font-normal items-start space-y-2">
+                  <div className="overflow-ellipsis truncate">
+                    <CalendarTodayIcon sx={{ fontSize: 13, color: "#ebd113" }} />{" "}
+                    {movie.release_date}
+                  </div>
+                  <div className="overflow-ellipsis truncate">
+                    <PublicIcon sx={{ fontSize: 13, color: "#ebd113" }} />{" "}
+                    {movie.original_language}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -11,6 +11,7 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const orderData = location.state?.orderData;
+  const [paymentResponse, setPaymentResponse] = useState(null);
 
   const userId = localStorage.getItem("userId");
 
@@ -50,7 +51,35 @@ const CheckoutPage = () => {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+  const handlePayment = async () => {
+    const payload = {
+      app_user: userData.fullName,
+      amount: totalBill,
+      bank_code: "zalo_payapp",
+      embed_data: "{}",
+      item: [
+        {
+          itemid: userData.userId,
+          itemname: orderData.seats,
+          itemprice: totalBill,
+          itemquantity: totalSeats,
+        },
+      ],
+      callback_url: "https://domain.com/callback",
+      description: "ZaloPayDemo - Thanh toán cho đơn hàng",
+    };
 
+    try {
+      const response = await axios.post(
+        "http://localhost:8095/api/payment/zalo-pay",
+        payload
+      );
+      setPaymentResponse("Api" + response.data);
+      console.log(response.data);
+    } catch (err) {
+      console.log("api err" + err.data);
+    }
+  };
   const confirmOrderMutation = useMutation({
     mutationFn: (data) => {
       return OrderApi.createOrder(data);
@@ -76,7 +105,7 @@ const CheckoutPage = () => {
       message.warning(
         "Vui lòng điền đầy đủ thông tin và chấp nhận điều khoản."
       );
-      return;
+      return false; // Trả về false nếu thông tin không hợp lệ
     }
 
     const orderToSubmit = {
@@ -92,11 +121,19 @@ const CheckoutPage = () => {
     };
 
     confirmOrderMutation.mutate(orderToSubmit);
+    return true; 
   };
 
   if (isUserLoading) {
     return <p>Đang tải thông tin khách hàng...</p>;
   }
+  const handleConfirmAndPay = async () => {
+    const isOrderConfirmed = handleConfirmOrder();
+
+    if (isOrderConfirmed) {
+      await handlePayment();
+    }
+  };
 
   return (
     <div className="container mx-auto mb-20 mt-40 px-[10%] flex flex-row text-white">
@@ -155,7 +192,7 @@ const CheckoutPage = () => {
         </div>
         <button
           className=" font-bold py-2 text-xl tracking-widest mt-4 bg-black text-yellow-600 border border-yellow-600 rounded shadow hover:bg-yellow-600 hover:text-black transition"
-          onClick={handleConfirmOrder}
+          onClick={handleConfirmAndPay}
           disabled={confirmOrderMutation.isLoading}
         >
           {confirmOrderMutation.isLoading ? "Đang xử lý..." : "Tiếp tục"}

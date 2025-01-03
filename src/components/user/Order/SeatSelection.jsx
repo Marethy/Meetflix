@@ -15,20 +15,25 @@ import {
   Remove as RemoveIcon,
 } from "@mui/icons-material";
 
-const SeatSelection = ({ seats, orderedSeats, selectedSeats, onSeatSelect }) => {
+const SeatSelection = ({
+  seats,
+  orderedSeats,
+  selectedSeats,
+  setSelectedSeats,
+}) => {
   const rows = "ABCDEFGHIJKLMN".split("");
 
   const grid = Array.from({ length: rows.length }, () => Array(14).fill(null));
 
   seats.forEach((seat) => {
     const seatName = seat.name;
-    const rowIndex = rows.indexOf(seatName.slice(-1)); // Extract the row letter and find its index
-    const columnIndex = parseInt(seatName.match(/\d+/)[0], 10) - 1; // Extract the column number and adjust for 0-based index
+    const rowIndex = rows.indexOf(seatName.slice(-1));
+    const columnIndex = parseInt(seatName.match(/\d+/)[0], 10) - 1;
     grid[rowIndex][columnIndex] = seat;
   });
 
   const handleSeatClick = (seat) => {
-    onSeatSelect((prevSelectedSeats) => {
+    setSelectedSeats((prevSelectedSeats) => {
       if (prevSelectedSeats.some((s) => s.name === seat.name)) {
         return prevSelectedSeats.filter((s) => s.name !== seat.name);
       } else {
@@ -162,7 +167,7 @@ const SeatSelection = ({ seats, orderedSeats, selectedSeats, onSeatSelect }) => 
         <Typography
           variant="h4"
           sx={{
-            color: "white",
+            color: "red",
             fontWeight: "bold",
             letterSpacing: "0.1em",
             mb: 1,
@@ -176,8 +181,8 @@ const SeatSelection = ({ seats, orderedSeats, selectedSeats, onSeatSelect }) => 
             height: 360,
             px: 20,
             display: "grid",
-            alignItems: 'center',
-            placeItems: 'center',
+            alignItems: "center",
+            placeItems: "center",
             gridTemplateColumns: `repeat(14, 42px)`,
             gridTemplateRows: `repeat(13, 30px)`,
             justifyContent: "center",
@@ -223,14 +228,9 @@ const SeatSelection = ({ seats, orderedSeats, selectedSeats, onSeatSelect }) => 
 };
 
 const SeatUnit = ({ seat, isSelected, onClick, isOrdered }) => {
-  const getBackgroundColor = (status, isSelected) => {
-    if (isOrdered) {
-      return "gray";
-    }
-    if (isSelected) {
-      return 'red';
-    }
-    return "white";
+  const getBackgroundColor = () => {
+    if (isOrdered) return "gray";
+    return isSelected ? "red" : "white";
   };
   return (
     <Box
@@ -239,7 +239,7 @@ const SeatUnit = ({ seat, isSelected, onClick, isOrdered }) => {
         width: 42,
         height: 26,
         borderRadius: "4px",
-        backgroundColor: getBackgroundColor(isSelected),
+        backgroundColor: getBackgroundColor(),
         display: "flex",
         justifyContent: "center",
         alignItems: "center",

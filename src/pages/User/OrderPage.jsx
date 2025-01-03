@@ -176,7 +176,7 @@ const OrderPage = () => {
             seats={availableSeats.allSeats}
             orderedSeats={availableSeats.orderedSeat}
             selectedSeats={selectedSeats}
-            onSeatSelect={setSelectedSeats}
+            setSelectedSeats={setSelectedSeats}
           />
         ))}
 

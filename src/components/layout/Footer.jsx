@@ -14,7 +14,7 @@ const Footer = () => {
 
     return (
         <footer
-            className="bg-gray-800 text-white py-4 "
+            className="relative bg-gray-800 text-white py-40 mt-20"
             style={{
                 backgroundImage: `url(${footerBackground})`,
                 backgroundSize: 'cover',
@@ -22,7 +22,8 @@ const Footer = () => {
                 backgroundRepeat: 'no-repeat',
             }}
         >
-            <div className="hidden md:block container mx-auto text-center">
+            <div className="absolute inset-0 bg-black opacity-50"></div>
+             <div className="hidden md:block container mx-auto text-center">
                 <div className="mb-4">
                     <p className="mb-2">&copy; {new Date().getFullYear()} Movie Trailer Web.</p>
                     <ul className="list-none flex justify-center gap-4 mb-4">

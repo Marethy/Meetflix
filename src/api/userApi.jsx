@@ -3,12 +3,15 @@ import { axiosInstance, TokenManager, configureAxios } from "./apiClient";
 const UserApi = {
   async getOrderbyUserId(userId) {
     configureAxios();
-    const response = await axiosInstance.get(`/api/v1/order/customer/${userId}`);
+    const response = await axiosInstance.get(
+      `/api/v1/order/customer/${userId}`
+    );
     return response.data;
   },
   async getUser(userId) {
     configureAxios();
     const response = await axiosInstance.get(`/api/v1/user/${userId}`);
+    console.log("data: ", response.data);
     return response.data;
   },
   async getAllUser() {

@@ -77,8 +77,8 @@
         {/* Recommended Movies */}
         <div className="mt-12">
           <h3 className="text-2xl font-bold mb-4">Recommended Movies</h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {topRatedMovies.slice(0, 5).map((recommendedMovie) => (
+          <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
+            {topRatedMovies.slice(0, 7).map((recommendedMovie) => (
               <div key={recommendedMovie.id} className="rounded-lg overflow-hidden shadow-lg">
                 <img
                   src={`https://image.tmdb.org/t/p/w200${recommendedMovie.poster_path}`}

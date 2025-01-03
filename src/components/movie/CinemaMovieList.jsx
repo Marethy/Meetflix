@@ -5,6 +5,11 @@ import MovieApi from "../../api/movieApi";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { useNavigate } from "react-router-dom";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import StyleIcon from "@mui/icons-material/Style";
+import PublicIcon from "@mui/icons-material/Public";
+import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import PersonOffIcon from "@mui/icons-material/PersonOff";
 
 const { Text } = Typography;
 
@@ -57,23 +62,59 @@ const CinemaMovieList = () => {
   }
 
   return (
-    <div className="my-10 px-2 md:px-10 max-w-full">
-      <h2 className="text-xl mb-4"> Phim đang chiếu </h2>
+    <div className="my-10 px-2 md:px-10 max-w-full relative">
+      <h2 className="text-3xl font-bold text-[#777] self-start flex w-full mb-4">
+        {" "}
+        PHIM ĐANG CHIẾU{" "}
+      </h2>
       <Carousel responsive={responsive} draggable={false}>
         {movies?.content.map((movie) => (
           <div
             key={movie.id}
-            className="w-auto h-[200px] rounded-md md:w-auto md:h-[300px] bg-cover bg-no-repeat bg-center relative hover:scale-110 transition-transform duration-500 ease-in-out cursor-pointer m-1"
-            style={{
-              backgroundImage: `url(${movie.urlImage})`,
-            }}
+            className="slide-item relative flex-shrink-0 w-[180px] h-[270px] rounded-md overflow-hidden"
             onClick={() => navigate(`/user/cinema_movies/${movie.id}`)}
           >
-            <div className="hidden md:block bg-black w-full h-full opacity-40 absolute top-0 left-0 z-0" />
-            <div className="relative mx-auto p-4 flex flex-col items-center justify-end h-full">
-              <h3 className="text-sm text-opacity-90 uppercase text-white">
-                {movie.name || movie.title || movie.original_title}
-              </h3>
+            <img
+              className="absolute slide-item-poster w-[180px] h-[270px] object-cover rounded-md z-[9]"
+              src={movie.urlImage}
+              alt={`${name} poster`}
+            />
+            <div className="absolute slide-item-filter w-[240px] h-[360px] bg-black z-10" />
+            <div className="absolute slide-item-info w-full h-[170px] z-[11]">
+              <div className="text-white flex flex-col py-3 px-[6px]">
+                <div
+                  className="text-[17px] flex self-center justify-self-center place-self-center h-[70px]"
+                  style={{
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    lineHeight: 1.25,
+                  }}
+                >
+                  {movie.name || movie.title || movie.original_title}
+                </div>
+                <div className="text-xs pl-2 flex flex-col items-start font-normal space-y-2">
+                  <div className="overflow-ellipsis truncate">
+                    <PersonOffIcon sx={{ fontSize: 13, color: "#ebd113" }} /> T
+                    {movie.director.map((d) => d.name).join(", ")}
+                  </div>
+                  <div className="overflow-ellipsis truncate">
+                    <StyleIcon sx={{ fontSize: 13, color: "#ebd113" }} />{" "}
+                    {movie.categories.map((c) => c.name).join(", ")}
+                  </div>
+                  <div className="overflow-ellipsis truncate">
+                    <AccessTimeIcon sx={{ fontSize: 13, color: "#ebd113" }} />{" "}
+                    {Math.floor(movie.durationMin / 60)}h{" "}
+                    {movie.durationMin % 60}m
+                  </div>
+                  <div className="overflow-ellipsis truncate">
+                    <PublicIcon sx={{ fontSize: 13, color: "#ebd113" }} />{" "}
+                    {movie.country}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         ))}
