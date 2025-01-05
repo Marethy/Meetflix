@@ -53,33 +53,41 @@ const CheckoutPage = () => {
   };
   const handlePayment = async () => {
     const payload = {
-      app_user: userData.fullName,
+      app_user: userData.fullName, 
       amount: totalBill,
-      bank_code: "zalo_payapp",
-      embed_data: "{}",
+      bank_code: "zalo_payapp", 
+      embed_data: "{}", 
       item: [
         {
-          itemid: userData.userId,
-          itemname: orderData.seats,
+          itemid: 'khiem', 
+          itemname: 'seats', 
           itemprice: totalBill,
           itemquantity: totalSeats,
         },
       ],
-      callback_url: "https://domain.com/callback",
-      description: "ZaloPayDemo - Thanh toán cho đơn hàng",
+      callback_url: "https://domain.com/callback", 
+      description: "ZaloPayDemo - Thanh toán cho đơn hàng", 
     };
-
+  
     try {
-      const response = await axios.post(
-        "http://localhost:8095/api/payment/zalo-pay",
-        payload
-      );
-      setPaymentResponse("Api" + response.data);
-      console.log(response.data);
+      const response = await axios.post("http://localhost:8095/payment/zalo-pay", payload);
+      console.log("payload: " + JSON.stringify(payload));
+      if (response.data && response.data.return_code === 1) {
+        console.log("Giao dịch thành công:", response.data);
+  
+        window.location.href = response.data.order_url;
+      } else {
+        console.error("Giao dịch thất bại:", response.data);
+  
+        alert(response.data.return_message || "Đã xảy ra lỗi khi thực hiện giao dịch.");
+      }
     } catch (err) {
-      console.log("api err" + err.data);
+      console.error("API error:", err);
+  
+      alert("Có lỗi xảy ra khi gọi API.");
     }
   };
+  
   const confirmOrderMutation = useMutation({
     mutationFn: (data) => {
       return OrderApi.createOrder(data);
@@ -89,12 +97,11 @@ const CheckoutPage = () => {
       console.log(response.data);
     },
     onError: (error) => {
-      console.error(error); // Log lỗi nếu có
+      console.error(error); 
       message.error("Không thể đặt vé. Vui lòng thử lại.");
     },
   });
 
-  // Xử lý xác nhận đơn hàng
   const handleConfirmOrder = () => {
     if (
       !customerInfo.fullName ||
@@ -105,7 +112,7 @@ const CheckoutPage = () => {
       message.warning(
         "Vui lòng điền đầy đủ thông tin và chấp nhận điều khoản."
       );
-      return false; // Trả về false nếu thông tin không hợp lệ
+      return false; 
     }
 
     const orderToSubmit = {
@@ -121,7 +128,7 @@ const CheckoutPage = () => {
     };
 
     confirmOrderMutation.mutate(orderToSubmit);
-    return true; 
+    return true;
   };
 
   if (isUserLoading) {

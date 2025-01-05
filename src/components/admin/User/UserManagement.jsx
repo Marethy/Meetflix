@@ -241,6 +241,8 @@ const UserManagement = () => {
                 { label: "Admin", value: "ADMIN" },
                 { label: "User", value: "USER" },
                 { label: "Guest", value: "GUEST" },
+                { label: "Manager", value: "Manager" },
+
               ]}
             />
           </Form.Item>

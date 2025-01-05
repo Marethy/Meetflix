@@ -11,7 +11,6 @@ const UserApi = {
   async getUser(userId) {
     configureAxios();
     const response = await axiosInstance.get(`/api/v1/user/${userId}`);
-    console.log("data: ", response.data);
     return response.data;
   },
   async getAllUser() {
