@@ -13,23 +13,17 @@ Meetflix Web is the frontend of a cinema management project for SE121 at UIT. Th
 - Make secure payments.
 - View schedules and upcoming movies.
 
-![Movie List](src/assets/images/demo-movielist.png)
-
 ### 🎥 Manager Role:
 
 - Manage cinema screening schedules.
 - Oversee seat availability and bookings.
 - Control movie listings and showtimes.
 
-![Select Seat](src/assets/images/demo-selectseat.png)
-
 ### 🔧 Admin Role:
 
 - Manage user accounts.
 - Oversee system-wide configurations.
 - Maintain data consistency and security.
-
-![Admin Dashboard](src/assets/images/demo-admindashboard.png)
 
 ## 🔗 Backend Service
 
